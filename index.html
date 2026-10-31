@@ -139,7 +139,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
   <div class="set-in">
     <div>
       <span class="sl">🔑 API 인증키</span>
-      <input type="password" class="si" id="keyIn" placeholder="공공데이터포털 Encoding 인증키"/>
+      <input type="password" class="si" id="keyIn" placeholder="공공데이터포털 인증키 (Encoding 또는 Decoding)"/>
       <button class="bf" onclick="saveKey()">인증키 저장</button>
       <div id="kd" class="kd kd-no">● 인증키 미설정</div>
     </div>
@@ -203,15 +203,15 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 <script>
 // ===== 설정 =====
 var DEFAULT_PROXY = 'https://script.google.com/macros/s/AKfycbzR5JcOtT6XeeWHYgvlygKagS_4E9FFlPBFK412K0ZzOJ-79vV8OdfwNjP5bCNOgLQe/exec';
-var API_BASE = 'https://apis.data.go.kr/1741000/cctv_info';
-var API_OPS = ['/getCCTVList', '/getCctvList', '/getCCTVInfo', '/getCctvInfo', ''];
+var API_BASE = 'https://apis.data.go.kr/1741000/cctv_info';  // ★ 동일
+var API_OPS = ['/info'];  // ★ 수정: 실제 오퍼레이션 '/info'로 변경
 var PAGE_SIZE = 20;
 var FETCH_TIMEOUT = 12000;
 
 // ===== 상태 =====
 var apiKey = '';
 var proxyBase = '';
-var currentOp = '';
+var currentOp = '/info';  // ★ 수정: 기본값을 '/info'로 설정
 var items = [];
 var gpsItems = [];
 var total = 0;
@@ -324,8 +324,8 @@ function initApp() {
     proxyBase = savedPx;
     byId('proxyIn').value = savedPx;
   }
-  var savedOp = lsGet('cctv_op');
-  if (savedOp) currentOp = savedOp;
+  // ★ 수정: 저장된 오퍼레이션 무시, 항상 /info 사용
+  currentOp = '/info';
 }
 
 function toggleSet() {
@@ -337,18 +337,14 @@ function saveKey() {
   var k = byId('keyIn').value.trim();
   if (!k) { showToast('인증키를 입력해주세요', 'err'); return; }
   apiKey = k;
-  currentOp = '';
   lsSet('cctv_key', k);
-  lsSet('cctv_op', '');
   setKeyStatus(true);
   showToast('✅ 인증키 저장 완료', 'ok');
 }
 
 function savePx() {
   proxyBase = byId('proxyIn').value.trim();
-  currentOp = '';
   lsSet('cctv_proxy', proxyBase);
-  lsSet('cctv_op', '');
   showToast(proxyBase ? '✅ 프록시 변경 완료' : '기본 프록시로 복원', 'ok');
 }
 
@@ -444,6 +440,19 @@ function doPaginate() {
   updatePaging();
 }
 
+// ===== 파라미터 빌드 ===== ★ 수정
+function buildParams(pageNum) {
+  // ★ 수정: serviceKey를 인코딩하지 않고 그대로 전달
+  // (Encoding 키는 이미 인코딩됨, Decoding 키는 프록시에서 처리)
+  var p = 'serviceKey=' + apiKey;
+  p += '&pageNo=' + (pageNum || pg);
+  p += '&numOfRows=' + PAGE_SIZE;
+  p += '&returnType=json';  // ★ 수정: type=json → returnType=json
+  var addr = byId('addrIn').value.trim();
+  if (addr) p += '&LCTN_LOTNO_ADDR=' + encodeURIComponent(addr);
+  return p;
+}
+
 // ===== 검색 =====
 function startSearch() {
   if (!apiKey) {
@@ -463,16 +472,6 @@ function startSearch() {
   }
 }
 
-function buildParams(pageNum) {
-  var p = 'serviceKey=' + encodeURIComponent(apiKey);
-  p += '&pageNo=' + (pageNum || pg);
-  p += '&numOfRows=' + PAGE_SIZE;
-  p += '&type=json';
-  var addr = byId('addrIn').value.trim();
-  if (addr) p += '&LCTN_LOTNO_ADDR=' + encodeURIComponent(addr);
-  return p;
-}
-
 function searchNormal() {
   if (busy) return;
   busy = true;
@@ -481,14 +480,68 @@ function searchNormal() {
   setStatusBar('wait');
   showLoadingUI();
 
-  tryAllEndpoints(buildParams()).then(function(ok) {
-    if (ok) {
+  // ★ 수정: 단일 엔드포인트 /info 직접 호출
+  var apiUrl = API_BASE + '/info?' + buildParams();
+  proxyFetch(apiUrl).then(function(res) {
+    if (!res) {
+      setStatusBar('err');
+      showErrorUI();
+      showToast('❌ API 호출 실패', 'err');
+      busy = false;
+      byId('btnGo').disabled = false;
+      return;
+    }
+    return res.text().then(function(txt) {
+      var j;
+      try { j = JSON.parse(txt); } catch(e) {
+        logs.push('JSON 파싱 실패: ' + txt.substring(0, 200));
+        setStatusBar('err');
+        showErrorUI('응답 파싱 실패');
+        showToast('❌ 응답 파싱 실패', 'err');
+        busy = false;
+        byId('btnGo').disabled = false;
+        return;
+      }
+
+      // ★ 수정: 에러 응답 감지 개선
+      if (j.OpenAPI_ServiceResponse) {
+        var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
+        var errMsg = errHdr.returnAuthMsg || errHdr.errMsg || 'API 오류';
+        var errCode = errHdr.returnReasonCode || '';
+        logs.push('API 오류 [코드:' + errCode + '] ' + errMsg);
+        setStatusBar('err');
+        showErrorUI('API 오류: ' + errMsg + ' (코드:' + errCode + ')');
+        showToast('❌ ' + errMsg, 'err');
+        busy = false;
+        byId('btnGo').disabled = false;
+        return;
+      }
+
+      var parsed = parseApiResponse(j);
+      if (!parsed) {
+        logs.push('응답 구조 인식 실패');
+        setStatusBar('err');
+        showErrorUI('응답 데이터 구조를 인식할 수 없습니다');
+        busy = false;
+        byId('btnGo').disabled = false;
+        return;
+      }
+
+      items = parsed.items;
+      total = parsed.totalCount;
+      pgMax = Math.max(1, Math.ceil(total / PAGE_SIZE));
       filterResults();
       renderList(items, false);
       updatePaging();
       setStatusBar('ok');
       showToast('✅ ' + total.toLocaleString() + '건 조회', 'ok');
-    }
+      busy = false;
+      byId('btnGo').disabled = false;
+    });
+  }).catch(function(e) {
+    logs.push('호출 오류: ' + e.message);
+    setStatusBar('err');
+    showErrorUI();
     busy = false;
     byId('btnGo').disabled = false;
   });
@@ -507,8 +560,10 @@ function searchGPS() {
 
   function loadNext() {
     if (pageNum > 10) return finishGPS(allData);
-    return fetchOnePage(buildParams(pageNum)).then(function(result) {
-      if (!result) {
+    // ★ 수정: 단일 엔드포인트 /info 직접 호출
+    var apiUrl = API_BASE + '/info?' + buildParams(pageNum);
+    return proxyFetch(apiUrl).then(function(res) {
+      if (!res) {
         if (pageNum === 1) {
           showErrorUI();
           setStatusBar('err');
@@ -518,11 +573,36 @@ function searchGPS() {
         }
         return finishGPS(allData);
       }
-      allData = allData.concat(result);
-      byId('totB').textContent = allData.length + '건 수집중...';
-      if (result.length < PAGE_SIZE) return finishGPS(allData);
-      pageNum++;
-      return loadNext();
+      return res.text().then(function(txt) {
+        var j;
+        try { j = JSON.parse(txt); } catch(e) {
+          if (pageNum === 1) { showErrorUI('응답 파싱 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
+          return finishGPS(allData);
+        }
+
+        // ★ 수정: 에러 응답 감지
+        if (j.OpenAPI_ServiceResponse) {
+          var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
+          var errMsg = errHdr.returnAuthMsg || 'API 오류';
+          if (pageNum === 1) { showErrorUI('API 오류: ' + errMsg); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
+          return finishGPS(allData);
+        }
+
+        var parsed = parseApiResponse(j);
+        if (!parsed) {
+          if (pageNum === 1) { showErrorUI('응답 구조 인식 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
+          return finishGPS(allData);
+        }
+
+        allData = allData.concat(parsed.items);
+        byId('totB').textContent = allData.length + '건 수집중...';
+        if (parsed.items.length < PAGE_SIZE) return finishGPS(allData);
+        pageNum++;
+        return loadNext();
+      });
+    }).catch(function() {
+      if (pageNum === 1) { showErrorUI(); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
+      return finishGPS(allData);
     });
   }
 
@@ -559,89 +639,6 @@ function finishGPS(allData) {
   byId('btnGo').disabled = false;
 }
 
-// ===== API 호출 =====
-function fetchOnePage(params) {
-  if (currentOp) {
-    return callApi(API_BASE + currentOp, params).then(function(r) {
-      if (r) return r;
-      currentOp = '';
-      return tryOpsForPage(params, 0);
-    });
-  }
-  return tryOpsForPage(params, 0);
-}
-
-function tryOpsForPage(params, idx) {
-  if (idx >= API_OPS.length) return Promise.resolve(null);
-  return callApi(API_BASE + API_OPS[idx], params).then(function(r) {
-    if (r) { currentOp = API_OPS[idx]; lsSet('cctv_op', currentOp); return r; }
-    return tryOpsForPage(params, idx + 1);
-  });
-}
-
-function callApi(url, params) {
-  return proxyFetch(url + '?' + params).then(function(res) {
-    if (!res) return null;
-    return res.text().then(function(txt) {
-      try {
-        var j = JSON.parse(txt);
-        var parsed = parseApiResponse(j);
-        if (parsed) return parsed.items;
-        return null;
-      } catch(e) { return null; }
-    });
-  }).catch(function() { return null; });
-}
-
-function tryAllEndpoints(params) {
-  if (currentOp) {
-    return tryOneEndpoint(API_BASE + currentOp, params).then(function(ok) {
-      if (ok) return true;
-      currentOp = '';
-      return tryEndpointsSeq(params, 0);
-    });
-  }
-  return tryEndpointsSeq(params, 0);
-}
-
-function tryEndpointsSeq(params, idx) {
-  if (idx >= API_OPS.length) {
-    setStatusBar('err');
-    showErrorUI();
-    showToast('❌ API 호출 실패', 'err');
-    return Promise.resolve(false);
-  }
-  return tryOneEndpoint(API_BASE + API_OPS[idx], params).then(function(ok) {
-    if (ok) { currentOp = API_OPS[idx]; lsSet('cctv_op', currentOp); return true; }
-    return tryEndpointsSeq(params, idx + 1);
-  });
-}
-
-function tryOneEndpoint(url, params) {
-  return proxyFetch(url + '?' + params).then(function(res) {
-    if (!res) return false;
-    return res.text().then(function(txt) {
-      var j;
-      try { j = JSON.parse(txt); } catch(e) {
-        if (txt.indexOf('returnReasonCode') >= 0) {
-          var m = txt.match(/<returnAuthMsg>(.*?)<\/returnAuthMsg>/);
-          var errMsg = m ? m[1] : '인증 오류';
-          showErrorUI('인증 오류: ' + errMsg);
-          setStatusBar('err');
-          showToast(errMsg, 'err');
-        }
-        return false;
-      }
-      var parsed = parseApiResponse(j);
-      if (!parsed) return false;
-      items = parsed.items;
-      total = parsed.totalCount;
-      pgMax = Math.max(1, Math.ceil(parsed.totalCount / PAGE_SIZE));
-      return true;
-    });
-  }).catch(function() { return false; });
-}
-
 // ===== 응답 파싱 =====
 function parseApiResponse(j) {
   var body = null;
@@ -650,12 +647,10 @@ function parseApiResponse(j) {
   if (j.response) {
     hdr = j.response.header;
     body = j.response.body;
-  } else if (j['\uacf5\ubb38']) {
-    hdr = j['\uacf5\ubb38']['header'];
-    body = j['\uacf5\ubb38']['\ubcf8\ubb38'];
   } else if (j.body || j.items || j.item) {
     body = j.body || j;
   } else {
+    // ★ 수정: 최상위에 바로 데이터가 있는 경우도 처리
     return null;
   }
 
@@ -665,14 +660,14 @@ function parseApiResponse(j) {
   }
   if (!body) return null;
 
-  var raw = body['\ud56d\ubaa9'] || body.items || body.item;
+  var raw = body.items || body.item;
   var arr = [];
   if (raw) {
-    var inner = raw['\ud56d\ubaa9'] || raw.item || raw;
+    var inner = raw.item || raw;
     arr = Array.isArray(inner) ? inner : (inner ? [inner] : []);
   }
 
-  var cnt = parseInt(body.totalCount || body['\uc804\uccb4\uac74\uc218'] || arr.length, 10);
+  var cnt = parseInt(body.totalCount || arr.length, 10);
   return { items: arr, totalCount: cnt };
 }
 
@@ -812,7 +807,7 @@ function showErrorUI(msg) {
   h += '<div style="font-size:17px;font-weight:700;color:#e53935">' + (msg ? escHtml(msg) : 'API 호출 실패') + '</div>';
   h += '<div class="ebox">';
   h += '<div class="etitle">해결 방법</div>';
-  h += '<div class="estep">① 인증키가 Encoding 키인지 확인</div>';
+  h += '<div class="estep">① 인증키가 올바른지 확인</div>';
   h += '<div class="estep">② 공공데이터포털에서 API 활용 승인 확인</div>';
   h += '<div class="estep">③ 잠시 후 다시 시도</div>';
   h += logHtml;
