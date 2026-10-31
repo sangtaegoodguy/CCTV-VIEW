@@ -6,136 +6,133 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CCTV 뷰어</title>
 <style>
-  :root{--bg:#0f1923;--card:#1a2733;--card2:#162029;--border:#2a3a4a;--accent:#4fc3f7;--red:#e53935;--green:#4caf50;--orange:#ff9800;--txt:#e0e0e0;--txt2:#90a4ae;--txt3:#546e7a;--txt4:#37474f}
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:16px;overflow-x:hidden}
+:root{--bg:#0f1923;--card:#1a2733;--card2:#162029;--border:#2a3a4a;--accent:#4fc3f7;--red:#e53935;--green:#4caf50;--orange:#ff9800;--txt:#e0e0e0;--txt2:#90a4ae;--txt3:#546e7a;--txt4:#37474f}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:16px;display:flex;flex-direction:column}
 
-  /* ── 헤더 ── */
-  .hdr{background:var(--card);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-  .hdr-l{display:flex;align-items:center;gap:10px}
-  .hdr-l svg{width:28px;height:28px;fill:var(--accent)}
-  .hdr-t{font-size:18px;font-weight:700;color:#fff}
-  .hdr-s{font-size:11px;color:var(--txt3)}
-  .btn-set{background:none;border:1px solid var(--txt4);color:var(--txt2);border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer}
-  .btn-set.on{border-color:var(--accent);color:var(--accent);background:rgba(79,195,247,.08)}
+.hdr{background:var(--card);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.hdr-l{display:flex;align-items:center;gap:10px}
+.hdr-l svg{width:30px;height:30px;fill:var(--accent)}
+.hdr-t{font-size:20px;font-weight:700;color:#fff}
+.hdr-s{font-size:12px;color:var(--txt3);margin-top:2px}
+.btn-set{background:none;border:2px solid var(--txt4);color:var(--txt2);border-radius:10px;padding:12px 16px;font-size:16px;cursor:pointer;min-width:48px;min-height:48px}
+.btn-set.on{border-color:var(--accent);color:var(--accent);background:rgba(79,195,247,.1)}
 
-  /* ── 설정 패널 ── */
-  .set{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--card2);border-bottom:1px solid transparent}
-  .set.open{max-height:400px;border-bottom-color:var(--border)}
-  .set-inner{padding:16px}
-  .set-row{margin-bottom:14px}
-  .set-row:last-child{margin-bottom:0}
-  .set-lbl{font-size:13px;color:var(--txt2);font-weight:600;margin-bottom:6px;display:block}
-  .set-row input,.set-row select{width:100%;background:var(--bg);border:1px solid var(--txt4);border-radius:8px;padding:12px 14px;color:var(--txt);font-size:14px;outline:none}
-  .set-row input:focus,.set-row select:focus{border-color:var(--accent)}
-  .set-row input::placeholder{color:var(--txt3)}
-  .set-btns{display:flex;gap:8px;margin-top:8px}
-  .btn-g{flex:1;background:#00897b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer}
-  .btn-g:active{background:#00796b}
-  .set-hint{font-size:11px;color:var(--txt3);margin-top:10px;line-height:1.5;background:var(--bg);padding:10px 12px;border-radius:8px}
-  .set-hint code{background:var(--txt4);padding:2px 6px;border-radius:4px;font-size:10px;color:var(--accent)}
-  .kd{font-size:13px;text-align:center;padding:6px;border-radius:6px;margin-top:6px}
-  .kd.ok{color:var(--green);background:rgba(76,175,80,.1)}
-  .kd.no{color:var(--red);background:rgba(229,57,53,.1)}
+.set{max-height:0;overflow:hidden;transition:max-height .4s ease;background:var(--card2);border-bottom:1px solid transparent;flex-shrink:0}
+.set.open{max-height:600px;border-bottom-color:var(--border);overflow-y:auto}
+.set-inner{padding:16px;display:flex;flex-direction:column;gap:14px}
+.set-lbl{font-size:14px;color:var(--txt2);font-weight:700;margin-bottom:6px;display:block}
+.set-inp{width:100%;background:var(--bg);border:2px solid var(--txt4);border-radius:10px;padding:14px 16px;color:var(--txt);font-size:15px;outline:none}
+.set-inp:focus{border-color:var(--accent)}
+.set-inp::placeholder{color:var(--txt3)}
+.btn-full{width:100%;background:#00897b;color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+.btn-full:active{background:#00796b}
+.kd{font-size:14px;text-align:center;padding:10px;border-radius:8px;margin-top:6px;font-weight:600}
+.kd.ok{color:var(--green);background:rgba(76,175,80,.15)}
+.kd.no{color:var(--red);background:rgba(229,57,53,.15)}
+.proxy-hint{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--txt3);line-height:1.7}
+.proxy-hint strong{color:var(--txt2);display:block;margin-bottom:6px}
+.proxy-hint a{color:var(--accent)}
+.proxy-hint code{background:var(--txt4);padding:2px 6px;border-radius:4px;font-size:10px;color:var(--accent);word-break:break-all}
 
-  /* ── 검색 ── */
-  .srch{background:var(--card);padding:12px 16px;border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:99}
-  .srch-top{display:flex;gap:8px;margin-bottom:10px}
-  .srch-top input{flex:1;background:var(--bg);border:1px solid var(--txt4);border-radius:8px;padding:12px 14px;color:var(--txt);font-size:15px;outline:none}
-  .srch-top input:focus{border-color:var(--accent)}
-  .srch-top input::placeholder{color:var(--txt3)}
-  .btn-go{background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
-  .btn-go:active{background:#c62828}
-  .srch-opts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .srch-opts select{background:var(--bg);border:1px solid var(--txt4);border-radius:8px;padding:10px 12px;color:var(--txt);font-size:13px;outline:none;flex:1;min-width:0}
+.srch{background:var(--card);padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.srch-row{display:flex;gap:8px}
+.srch-inp{flex:1;background:var(--bg);border:2px solid var(--txt4);border-radius:10px;padding:14px 16px;color:var(--txt);font-size:16px;outline:none;min-height:50px}
+.srch-inp:focus{border-color:var(--accent)}
+.srch-inp::placeholder{color:var(--txt3)}
+.btn-search{background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer;white-space:nowrap;min-height:50px}
+.btn-search:active{background:#c62828}
+.btn-reset{background:var(--txt4);color:var(--txt);border:none;border-radius:10px;padding:14px 16px;font-size:15px;font-weight:600;cursor:pointer;min-height:50px}
+.btn-reset:active{background:#546e7a}
+.sel-full{width:100%;background:var(--bg);border:2px solid var(--txt4);border-radius:10px;padding:14px 16px;color:var(--txt);font-size:15px;outline:none;min-height:50px}
 
-  /* GPS */
-  .gps-row{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--txt4)}
-  .gps-row.on{border-color:var(--accent);background:rgba(79,195,247,.05)}
-  .tw{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
-  .tw input{opacity:0;width:0;height:0}
-  .tt{position:absolute;inset:0;background:var(--txt4);border-radius:12px;transition:background .2s}
-  .tt::after{content:'';position:absolute;width:20px;height:20px;left:2px;top:2px;background:var(--txt2);border-radius:50%;transition:all .2s}
-  .tw input:checked+.tt{background:#00897b}
-  .tw input:checked+.tt::after{transform:translateX(20px);background:#fff}
-  .gps-info{flex:1;display:flex;flex-direction:column;gap:2px}
-  .gps-t{font-size:14px;font-weight:600;color:var(--txt2)}
-  .gps-t.on{color:var(--accent)}
-  .gps-st{font-size:11px;color:var(--txt3)}
-  .gps-st.finding{color:var(--orange)}
-  .gps-st.found{color:var(--green)}
-  .gps-st.fail{color:var(--red)}
-  .gps-row select{background:var(--card2);border:1px solid var(--txt4);border-radius:6px;padding:8px 10px;color:var(--txt);font-size:13px;outline:none}
-  .gps-row select:disabled{opacity:.35}
+.gps-box{background:var(--bg);border:2px solid var(--txt4);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.gps-box.on{border-color:var(--accent);background:rgba(79,195,247,.05)}
+.tw{position:relative;width:52px;height:28px;flex-shrink:0}
+.tw input{opacity:0;width:0;height:0}
+.tt{position:absolute;inset:0;background:var(--txt4);border-radius:14px;transition:background .2s;cursor:pointer}
+.tt::after{content:'';position:absolute;width:24px;height:24px;left:2px;top:2px;background:var(--txt2);border-radius:50%;transition:all .2s}
+.tw input:checked+.tt{background:#00897b}
+.tw input:checked+.tt::after{transform:translateX(24px);background:#fff}
+.gps-info{flex:1;min-width:0}
+.gps-t{font-size:15px;font-weight:700;color:var(--txt2)}
+.gps-t.on{color:var(--accent)}
+.gps-st{font-size:12px;color:var(--txt3);margin-top:3px}
+.gps-st.finding{color:var(--orange)}
+.gps-st.found{color:var(--green)}
+.gps-st.fail{color:var(--red)}
+.rad-sel{background:var(--card2);border:2px solid var(--txt4);border-radius:8px;padding:10px 12px;color:var(--txt);font-size:14px;outline:none;min-height:48px}
+.rad-sel:disabled{opacity:.4}
 
-  /* 페이지네이션 */
-  .pag-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
-  .pag-row button{background:var(--bg);border:1px solid var(--txt4);color:var(--txt2);border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer}
-  .pag-row button:active{border-color:var(--accent);color:var(--accent)}
-  .pag-row button:disabled{opacity:.3}
-  .pag-row span{font-size:13px;color:var(--txt3)}
-  .pag-row .badge{background:var(--txt4);color:var(--txt2);font-size:12px;padding:4px 10px;border-radius:10px;font-weight:600}
+.pag-row{display:flex;align-items:center;justify-content:space-between}
+.pag-btn{background:var(--bg);border:2px solid var(--txt4);color:var(--txt2);border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer;min-height:44px}
+.pag-btn:active{border-color:var(--accent)}
+.pag-btn:disabled{opacity:.3;cursor:not-allowed}
+.pag-info{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cnt-badge{background:var(--txt4);color:var(--txt2);font-size:14px;padding:5px 14px;border-radius:12px;font-weight:700}
+.pg-txt{font-size:13px;color:var(--txt3)}
 
-  /* ── 탭 ── */
-  .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border)}
-  .tab{flex:1;text-align:center;padding:12px;font-size:14px;font-weight:600;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
-  .tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;text-align:center;padding:16px;font-size:16px;font-weight:700;color:var(--txt3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);background:rgba(79,195,247,.05)}
 
-  /* ── 목록 ── */
-  .panel{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .panel.on{display:block}
+.panels{flex:1;overflow:hidden;position:relative}
+.panel{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel.on{display:block}
 
-  .ci{padding:14px 16px;border-bottom:1px solid #1e2d3a;cursor:pointer;transition:background .1s}
-  .ci:active{background:#1e2d3a}
-  .ci.active{background:#1a3a4a;border-left:4px solid var(--accent)}
-  .ci-name{font-size:14px;font-weight:600;color:var(--txt)}
-  .ci-addr{font-size:12px;color:var(--txt3);margin-top:4px}
-  .ci-dist{font-size:12px;color:var(--orange);margin-top:3px;font-weight:600}
-  .ci-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-top:4px;font-weight:600}
-  .tc{background:#1b5e20;color:#a5d6a7}.tt2{background:#0d47a1;color:#90caf9}.tcr{background:#4a148c;color:#ce93d8}.te{background:var(--txt4);color:#b0bec5}
+.ci{padding:18px 16px;border-bottom:1px solid #1e2d3a;cursor:pointer;transition:background .1s}
+.ci:active{background:#1e2d3a}
+.ci.active{background:#1a3a4a;border-left:5px solid var(--accent)}
+.ci-name{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.ci-addr{font-size:13px;color:var(--txt3);line-height:1.5}
+.ci-dist{font-size:13px;color:var(--orange);margin-top:5px;font-weight:700}
+.ci-tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:5px;margin-top:6px;font-weight:700}
+.tc{background:#1b5e20;color:#a5d6a7}.tt2{background:#0d47a1;color:#90caf9}.tcr{background:#4a148c;color:#ce93d8}.te{background:var(--txt4);color:#b0bec5}
 
-  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--txt3);font-size:14px;gap:14px}
-  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .empty{display:flex;flex-direction:column;align-items:center;padding:60px 20px;color:var(--txt3);font-size:14px;text-align:center;gap:8px;line-height:1.6}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--txt3);font-size:16px;gap:16px}
+.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{display:flex;flex-direction:column;align-items:center;padding:60px 20px;color:var(--txt3);font-size:15px;text-align:center;gap:10px;line-height:1.7}
+.err-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:10px;text-align:left;width:100%}
+.err-title{color:var(--red);font-size:16px;font-weight:700;margin-bottom:10px}
+.err-step{font-size:13px;color:var(--txt2);margin-bottom:8px;display:flex;gap:8px;line-height:1.5}
+.err-step span{color:var(--accent);font-weight:700;flex-shrink:0}
 
-  /* ── 상세 ── */
-  .detail{padding:16px}
-  .dh{background:#111;border-radius:12px;border:1px solid var(--border);padding:24px 20px;text-align:center;margin-bottom:14px}
-  .dh-ic{font-size:52px;margin-bottom:12px}
-  .dh-pp{color:var(--accent);font-size:18px;font-weight:700;margin-bottom:8px}
-  .dh-ad{color:var(--txt2);font-size:13px;margin-bottom:6px;line-height:1.4}
-  .dh-co{color:var(--txt3);font-size:12px;margin-bottom:12px}
-  .dh-di{color:var(--orange);font-size:14px;font-weight:600;margin-bottom:14px}
-  .ml{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
-  .ml a{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none}
-  .dh-nt{color:var(--txt4);font-size:11px}
+.detail{padding:16px;display:flex;flex-direction:column;gap:14px}
+.dh{background:#111;border-radius:14px;border:1px solid var(--border);padding:28px 20px;text-align:center}
+.dh-ic{font-size:56px;margin-bottom:14px}
+.dh-pp{color:var(--accent);font-size:20px;font-weight:700;margin-bottom:10px}
+.dh-org{color:var(--txt);font-size:16px;font-weight:600;margin-bottom:8px}
+.dh-ad{color:var(--txt2);font-size:14px;margin-bottom:6px;line-height:1.5}
+.dh-co{color:var(--txt3);font-size:13px;margin-bottom:14px}
+.dh-di{color:var(--orange);font-size:16px;font-weight:700;margin-bottom:16px}
+.ml{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.ml a{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;min-height:48px;display:flex;align-items:center}
+.dh-nt{color:var(--txt4);font-size:12px}
+.ig{background:var(--card2);border-radius:12px;border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.if .l{font-size:12px;color:var(--txt3);font-weight:700;margin-bottom:4px}
+.if .v{font-size:14px;color:var(--txt);word-break:break-all;line-height:1.4}
 
-  .ig{background:var(--card2);border-radius:12px;border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .if{display:flex;flex-direction:column;gap:3px}
-  .if .l{font-size:11px;color:var(--txt3);font-weight:600}
-  .if .v{font-size:13px;color:var(--txt);word-break:break-all}
+.toast{position:fixed;bottom:24px;left:16px;right:16px;padding:16px 20px;border-radius:12px;font-size:15px;font-weight:700;z-index:9999;transform:translateY(140%);transition:transform .3s ease;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.show{transform:translateY(0)}
+.toast.success{background:#1b5e20;color:#a5d6a7;border:1px solid #2e7d32}
+.toast.error{background:#b71c1c;color:#ef9a9a;border:1px solid #c62828}
+.toast.info{background:#0d47a1;color:#90caf9;border:1px solid #1565c0}
 
-  /* ── 토스트 ── */
-  .toast{position:fixed;bottom:20px;left:16px;right:16px;padding:14px 18px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;transform:translateY(120%);transition:transform .3s ease;text-align:center}
-  .toast.show{transform:translateY(0)}
-  .toast.success{background:#1b5e20;color:#a5d6a7;border:1px solid #2e7d32}
-  .toast.error{background:#b71c1c;color:#ef9a9a;border:1px solid #c62828}
-  .toast.info{background:#0d47a1;color:#90caf9;border:1px solid #1565c0}
+.stbar{background:var(--card2);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);font-size:13px;color:var(--txt3);flex-shrink:0}
+.sd{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.sd.ok{background:var(--green)}.sd.err{background:var(--red)}.sd.wait{background:var(--orange);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
-  .ib{background:var(--card2);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);font-size:12px;color:var(--txt3)}
-  .sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-  .sd.ok{background:var(--green)}.sd.err{background:var(--red)}.sd.wait{background:var(--orange)}
-
-  .fi{animation:fadeIn .3s ease both}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fi{animation:fadeIn .3s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
 
-<!-- 헤더 -->
 <div class="hdr">
   <div class="hdr-l">
     <svg viewBox="0 0 24 24"><path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h1v3l3-3h2.52A7.987 7.987 0 0 1 10 12.48c0-1.64.8-3.1 2.03-4.01A3.005 3.005 0 0 1 15 6.48c.83 0 1.58.34 2.12.88.37-.22.78-.38 1.22-.38h-.34zM17 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3zm0-5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
@@ -147,100 +144,97 @@
   <button class="btn-set" id="btnSet">⚙️</button>
 </div>
 
-<!-- 설정 (기본 숨김) -->
 <div class="set" id="setP">
   <div class="set-inner">
-    <div class="set-row">
+    <div>
       <span class="set-lbl">🔑 API 인증키</span>
-      <input type="password" id="keyIn" placeholder="공공데이터포털 Encoding 인증키" />
-      <div class="set-btns"><button class="btn-g" id="btnKey">저장</button></div>
+      <input type="password" class="set-inp" id="keyIn" placeholder="공공데이터포털 Encoding 인증키" />
+      <button class="btn-full" id="btnKey">인증키 저장</button>
       <div class="kd no" id="kd">● 인증키 미설정</div>
     </div>
-    <div class="set-row">
-      <span class="set-lbl">🌐 프록시 서버 URL</span>
-      <input type="text" id="proxyIn" placeholder="Google Apps Script URL 또는 프록시 URL" />
-      <div class="set-btns"><button class="btn-g" id="btnProxy">저장</button></div>
+    <div>
+      <span class="set-lbl">🌐 CORS 프록시 URL (필수)</span>
+      <input type="text" class="set-inp" id="proxyIn" placeholder="https://script.google.com/.../exec" />
+      <button class="btn-full" id="btnProxy">프록시 저장</button>
     </div>
-    <div class="set-hint">
-      <strong>📌 CORS 프록시 설정 방법 (무료, 1분)</strong><br><br>
-      1. <a href="https://script.google.com" target="_blank" style="color:var(--accent)">script.google.com</a> 접속 → 새 프로젝트<br>
-      2. 아래 코드를 붙여넣기:<br>
-      <code>function doGet(e){var u=e.parameter.url;var r=UrlFetchApp.fetch(u);return ContentService.createTextOutput(r.getContentText()).setMimeType(ContentService.MimeType.JSON)}</code><br><br>
-      3. 배포 → 새 배포 → 웹 앱 → 액세스: 모든 사용자 → 배포<br>
-      4. 생성된 URL을 위 프록시 URL에 붙여넣기<br><br>
-      💡 프록시 미설정 시 <code>allorigins.win</code> 등 공개 프록시를 자동 시도합니다.
+    <div class="proxy-hint">
+      <strong>⚠️ 프록시 없으면 조회 불가 — Google Apps Script 무료 설정 (1분)</strong>
+      1. <a href="https://script.google.com" target="_blank">script.google.com</a> 접속 → 새 프로젝트<br>
+      2. 기존 코드 전부 삭제 후 아래 코드 붙여넣기:<br><br>
+      <code>function doGet(e){var u=e.parameter.url;var r=UrlFetchApp.fetch(u,{muteHttpExceptions:true});return ContentService.createTextOutput(r.getContentText()).setMimeType(ContentService.MimeType.JSON)}</code><br><br>
+      3. 상단 배포 → 새 배포 → 유형: 웹 앱<br>
+      4. 실행: 나 / 액세스: <strong>모든 사용자</strong> → 배포<br>
+      5. 생성된 URL을 위에 붙여넣고 저장
     </div>
   </div>
 </div>
 
-<!-- 검색 -->
 <div class="srch">
-  <div class="srch-top">
-    <input type="text" id="addrIn" placeholder="🔍 주소 검색 (김해시, 강남구...)" />
-    <button class="btn-go" id="btnGo">검색</button>
+  <div class="srch-row">
+    <input type="text" class="srch-inp" id="addrIn" placeholder="🔍 주소 (김해시, 강남구...)" />
+    <button class="btn-search" id="btnGo">검색</button>
   </div>
-  <div class="srch-opts">
-    <select id="ppSel">
-      <option value="">전체 목적</option>
+  <div class="srch-row">
+    <select class="sel-full" id="ppSel" style="flex:1">
+      <option value="">📋 전체 목적</option>
       <option value="어린이보호">🧒 어린이보호</option>
       <option value="교통단속">🚗 교통단속</option>
       <option value="방범">🔒 방범</option>
       <option value="재난재해">🌊 재난재해</option>
       <option value="주정차단속">🅿️ 주정차단속</option>
     </select>
-    <button class="btn-go" style="background:#455a64;padding:10px 14px;font-size:13px" id="btnRst">초기화</button>
+    <button class="btn-reset" id="btnRst">초기화</button>
   </div>
-
-  <!-- GPS -->
-  <div class="gps-row" id="gpsRow">
-    <label class="tw"><input type="checkbox" id="gpsChk"/><span class="tt"></span></label>
+  <div class="gps-box" id="gpsBox">
+    <label class="tw" onclick="event.stopPropagation()"><input type="checkbox" id="gpsChk"/><span class="tt"></span></label>
     <div class="gps-info">
-      <span class="gps-t" id="gpsT">📍 내 위치 기반 검색</span>
-      <span class="gps-st" id="gpsSt"></span>
+      <div class="gps-t" id="gpsT">📍 내 위치 기반 검색</div>
+      <div class="gps-st" id="gpsSt">OFF — 켜면 반경 내 CCTV 조회</div>
     </div>
-    <select id="radSel" disabled>
+    <select class="rad-sel" id="radSel" disabled onclick="event.stopPropagation()">
       <option value="2">2km</option>
       <option value="5" selected>5km</option>
       <option value="7">7km</option>
       <option value="10">10km</option>
     </select>
   </div>
-
-  <!-- 페이지네이션 -->
   <div class="pag-row">
-    <button id="btnP" disabled>◀ 이전</button>
-    <span><span class="badge" id="totB">0건</span> &nbsp; <span id="pgInfo">- / -</span></span>
-    <button id="btnN" disabled>다음 ▶</button>
+    <button class="pag-btn" id="btnP" disabled>◀ 이전</button>
+    <div class="pag-info">
+      <span class="cnt-badge" id="totB">0건</span>
+      <span class="pg-txt" id="pgInfo">- / -</span>
+    </div>
+    <button class="pag-btn" id="btnN" disabled>다음 ▶</button>
   </div>
 </div>
 
-<!-- 탭 -->
 <div class="tabs">
   <div class="tab on" data-tab="list">📋 목록</div>
-  <div class="tab" data-tab="detail">📷 상세</div>
+  <div class="tab" data-tab="detail">📷 상세정보</div>
 </div>
 
-<!-- 목록 패널 -->
-<div class="panel on" id="listPanel">
-  <div id="listWrap">
-    <div class="empty"><p>🔍 주소를 입력하거나</p><p>📍 내 위치를 켜고 검색하세요</p></div>
+<div class="panels">
+  <div class="panel on" id="listPanel">
+    <div id="listWrap">
+      <div class="empty">
+        <div style="font-size:48px">🔍</div>
+        <div>주소를 입력하거나<br>내 위치를 켜고 검색하세요</div>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- 상세 패널 -->
-<div class="panel" id="detailPanel">
-  <div id="detailWrap">
-    <div class="empty">
-      <p style="font-size:40px">📷</p>
-      <p>목록에서 CCTV를 선택하세요</p>
+  <div class="panel" id="detailPanel">
+    <div id="detailWrap">
+      <div class="empty">
+        <div style="font-size:48px">📷</div>
+        <div>목록에서 CCTV를 선택하면<br>상세정보가 표시됩니다</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 상태바 -->
-<div class="ib">
+<div class="stbar">
   <div id="stTxt"><span class="sd wait"></span>대기중</div>
-  <div id="epTxt"></div>
+  <div id="epTxt" style="font-size:11px;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
 </div>
 
 <script>
@@ -248,29 +242,81 @@ const App=(()=>{
   const BASE='https://apis.data.go.kr/1741000/cctv_info';
   const OPS=['/getCCTVList','/getCctvList','/getCCTVInfo','/getCctvInfo',''];
   const PER=20;
+  const TIMEOUT=8000;
 
-  // 공개 프록시 목록 (자동 시도용)
-  const PUB_PROXIES=[
+  const PUB=[
     u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-    u=>'https://proxy.corsfix.com/?'+encodeURIComponent(u),
     u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
   ];
 
   let S={
-    key:ls('ck',''),
-    proxy:ls('cpx',''),
-    op:ls('cop',null),
-    wp:null, // working proxy index
-    data:[],gpsFull:[],
-    total:0,page:1,pages:0,
-    sel:null,busy:false,
-    gps:false,lat:null,lon:null,rad:5,
+    key:lsG('ck',''),proxy:lsG('cpx',''),op:lsG('cop',null),
+    wp:null,data:[],gpsFull:[],total:0,page:1,pages:0,
+    sel:null,busy:false,gps:false,lat:null,lon:null,rad:5,
+    tryLog:[],
   };
 
-  function ls(k,d){try{const v=localStorage.getItem(k);return v!==null?v:d}catch{return d}}
-
+  function lsG(k,d){try{const v=localStorage.getItem(k);return v!==null?v:d}catch{return d}}
   const $=id=>document.getElementById(id);
 
+  // ── 타임아웃 fetch ──
+  async function tFetch(url,ms){
+    const c=new AbortController();
+    const t=setTimeout(()=>c.abort(),ms||TIMEOUT);
+    try{const r=await fetch(url,{signal:c.signal});clearTimeout(t);return r}
+    catch(e){clearTimeout(t);throw e}
+  }
+
+  // ── 프록시 URL 생성 ──
+  function gasUrl(base,api){
+    if(!base)return null;
+    const sep=base.includes('?')?'&':'?';
+    return base+sep+'url='+encodeURIComponent(api);
+  }
+
+  // ── 스마트 fetch ──
+  async function smartFetch(apiUrl){
+    S.tryLog=[];
+
+    // 1) 사용자 프록시
+    if(S.proxy){
+      const pu=gasUrl(S.proxy,apiUrl);
+      try{
+        const r=await tFetch(pu);
+        if(r.ok){ep('✅ 사용자프록시');return r}
+        S.tryLog.push('사용자프록시: HTTP '+r.status);
+      }catch(e){S.tryLog.push('사용자프록시: '+(e.name==='AbortError'?'타임아웃(8초)':e.message))}
+    }
+
+    // 2) 이전 성공 프록시
+    if(S.wp!=null){
+      try{const r=await tFetch(PUB[S.wp](apiUrl));if(r.ok){ep('✅ 공개프록시['+S.wp+']');return r}}catch{}
+      S.wp=null;
+    }
+
+    // 3) 공개 프록시 순차
+    for(let i=0;i<PUB.length;i++){
+      try{
+        const r=await tFetch(PUB[i](apiUrl));
+        if(r.ok){S.wp=i;ep('✅ 공개프록시['+i+']');return r}
+        S.tryLog.push('공개프록시['+i+']: HTTP '+r.status);
+      }catch(e){S.tryLog.push('공개프록시['+i+']: '+(e.name==='AbortError'?'타임아웃':e.message))}
+    }
+
+    // 4) 직접
+    try{
+      const r=await tFetch(apiUrl);
+      if(r.ok){ep('✅ 직접호출');return r}
+      S.tryLog.push('직접호출: HTTP '+r.status);
+    }catch(e){S.tryLog.push('직접호출: '+(e.name==='AbortError'?'타임아웃':'CORS 차단'))}
+
+    ep('❌ 모든 경로 실패');
+    return null;
+  }
+
+  function ep(t){$('epTxt').textContent=t}
+
+  // ── 초기화 ──
   function init(){
     if(S.key){$('keyIn').value=S.key;kOk()}
     if(S.proxy)$('proxyIn').value=S.proxy;
@@ -278,24 +324,19 @@ const App=(()=>{
     $('btnSet').onclick=()=>{$('setP').classList.toggle('open');$('btnSet').classList.toggle('on')};
     $('btnKey').onclick=saveKey;
     $('btnProxy').onclick=saveProxy;
-
     $('gpsChk').onchange=toggleGPS;
-    $('gpsRow').onclick=e=>{if(e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT')$('gpsChk').click()};
-    $('radSel').onchange=()=>{S.rad=+$('radSel').value};
-
+    $('gpsBox').onclick=e=>{if(e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION')$('gpsChk').click()};
+    $('radSel').onchange=()=>S.rad=+$('radSel').value;
     $('btnGo').onclick=()=>{S.page=1;doSearch()};
     $('btnRst').onclick=reset;
     $('addrIn').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();S.page=1;doSearch()}};
     $('btnP').onclick=()=>{if(S.page>1){S.page--;paginate()}};
     $('btnN').onclick=()=>{if(S.page<S.pages){S.page++;paginate()}};
-
-    // 탭
     document.querySelectorAll('.tab').forEach(t=>{
       t.onclick=()=>{
         document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
         document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
-        t.classList.add('on');
-        $(t.dataset.tab+'Panel').classList.add('on');
+        t.classList.add('on');$(t.dataset.tab+'Panel').classList.add('on');
       };
     });
   }
@@ -305,139 +346,64 @@ const App=(()=>{
     if(!k){toast('인증키를 입력해주세요','error');return}
     S.key=k;S.op=null;S.wp=null;
     localStorage.setItem('ck',k);localStorage.removeItem('cop');
-    kOk();toast('인증키 저장 완료 ✅','success');
+    kOk();toast('✅ 인증키 저장 완료','success');
   }
   function saveProxy(){
-    S.proxy=$('proxyIn').value.trim();
-    localStorage.setItem('cpx',S.proxy);
-    S.op=null;S.wp=null;
-    toast(S.proxy?'프록시 URL 저장 완료':'프록시 초기화 (공개 프록시 자동 시도)','success');
+    S.proxy=$('proxyIn').value.trim();S.op=null;S.wp=null;
+    localStorage.setItem('cpx',S.proxy);localStorage.removeItem('cop');
+    toast(S.proxy?'✅ 프록시 저장 완료':'프록시 초기화됨','success');
   }
   function kOk(){$('kd').textContent='✅ 인증키 설정됨';$('kd').className='kd ok'}
 
-  // ── 프록시 fetch ──
-  function buildProxyUrl(apiUrl, proxyIdx){
-    // 사용자 지정 프록시 (Google Apps Script 등)
-    if(S.proxy){
-      const base=S.proxy;
-      // GAS 형태: https://script.google.com/.../exec?url=...
-      if(base.includes('script.google.com')||base.includes('exec')){
-        const sep=base.includes('?')?'&':'?';
-        return base+sep+'url='+encodeURIComponent(apiUrl);
-      }
-      // 일반 프록시: URL 뒤에 붙이기
-      if(base.endsWith('=')||base.endsWith('/')){
-        return base+encodeURIComponent(apiUrl);
-      }
-      return base+'?url='+encodeURIComponent(apiUrl);
-    }
-    // 공개 프록시
-    if(proxyIdx!=null&&proxyIdx<PUB_PROXIES.length){
-      return PUB_PROXIES[proxyIdx](apiUrl);
-    }
-    // 직접 호출
-    return apiUrl;
-  }
-
-  async function smartFetch(apiUrl){
-    // 1) 사용자 프록시가 있으면 우선
-    if(S.proxy){
-      try{
-        const r=await fetch(buildProxyUrl(apiUrl));
-        if(r.ok)return r;
-      }catch(e){console.warn('사용자 프록시 실패:',e.message)}
-    }
-
-    // 2) 이전에 성공한 공개 프록시
-    if(S.wp!=null){
-      try{
-        const r=await fetch(buildProxyUrl(apiUrl,S.wp));
-        if(r.ok)return r;
-      }catch{}
-      S.wp=null;
-    }
-
-    // 3) 공개 프록시 순차 시도
-    for(let i=0;i<PUB_PROXIES.length;i++){
-      try{
-        const r=await fetch(buildProxyUrl(apiUrl,i));
-        if(r.ok){S.wp=i;return r}
-      }catch(e){console.warn(`프록시[${i}] 실패:`,e.message)}
-    }
-
-    // 4) 직접 호출 (CORS 허용 환경)
-    try{
-      const r=await fetch(apiUrl);
-      if(r.ok)return r;
-    }catch{}
-
-    return null;
-  }
-
   // ── GPS ──
   function toggleGPS(){
-    S.gps=$('gpsChk').checked;
-    $('radSel').disabled=!S.gps;
+    S.gps=$('gpsChk').checked;$('radSel').disabled=!S.gps;
     $('gpsT').className=S.gps?'gps-t on':'gps-t';
-    $('gpsRow').className=S.gps?'gps-row on':'gps-row';
+    $('gpsBox').className=S.gps?'gps-box on':'gps-box';
     if(S.gps){if(S.lat)showCoord();else getLoc()}
-    else{$('gpsSt').textContent='';$('gpsSt').className='gps-st'}
+    else{$('gpsSt').textContent='OFF — 켜면 반경 내 CCTV 조회';$('gpsSt').className='gps-st'}
   }
   function getLoc(){
-    if(!navigator.geolocation){$('gpsSt').textContent='GPS 미지원';$('gpsSt').className='gps-st fail';$('gpsChk').checked=false;S.gps=false;$('radSel').disabled=true;return}
+    if(!navigator.geolocation){gFail('GPS 미지원');return}
     $('gpsSt').textContent='위치 확인중...';$('gpsSt').className='gps-st finding';
     navigator.geolocation.getCurrentPosition(
       p=>{S.lat=p.coords.latitude;S.lon=p.coords.longitude;showCoord();toast('📍 위치 확인됨','success')},
-      ()=>{$('gpsSt').textContent='위치 확인 실패';$('gpsSt').className='gps-st fail';$('gpsChk').checked=false;S.gps=false;$('radSel').disabled=true;$('gpsRow').className='gps-row';toast('위치 확인 실패','error')},
+      ()=>gFail('위치 확인 실패'),
       {enableHighAccuracy:true,timeout:10000}
     );
   }
-  function showCoord(){$('gpsSt').textContent=`${S.lat.toFixed(4)}, ${S.lon.toFixed(4)}`;$('gpsSt').className='gps-st found'}
+  function gFail(m){$('gpsSt').textContent=m;$('gpsSt').className='gps-st fail';$('gpsChk').checked=false;S.gps=false;$('radSel').disabled=true;$('gpsBox').className='gps-box';toast(m,'error')}
+  function showCoord(){$('gpsSt').textContent=`📍 ${S.lat.toFixed(5)}, ${S.lon.toFixed(5)}`;$('gpsSt').className='gps-st found'}
 
   // ── 검색 ──
   function doSearch(){
-    if(!S.key){toast('⚙️ 설정에서 인증키를 먼저 저장해주세요','error');$('setP').classList.add('open');$('btnSet').classList.add('on');return}
+    if(!S.key){toast('⚙️ 인증키를 먼저 설정해주세요','error');$('setP').classList.add('open');$('btnSet').classList.add('on');return}
     S.rad=+$('radSel').value;
-    S.gps?fetchGPS():fetchNormal();
+    if(S.gps){if(!S.lat){toast('위치 확인 중...','info');return}fetchGPS()}
+    else fetchNormal();
   }
 
   async function fetchNormal(){
     if(S.busy)return;S.busy=true;S.gpsFull=[];
     setSt('wait');showLoad();
-    const p=mkP();
-    const ok=await tryAllOps(p);
-    if(ok){
-      applyFilter();
-      renderList(S.data,false);
-      updatePag();setSt('ok');
-      toast(`${S.total.toLocaleString()}건 조회 완료`,'success');
-    }
+    const ok=await tryAllOps(mkP());
+    if(ok){applyFilter();renderList(S.data,false);updatePag();setSt('ok');toast(`✅ ${S.total.toLocaleString()}건 조회`,'success')}
     S.busy=false;
   }
 
   async function fetchGPS(){
-    if(S.busy)return;
-    if(!S.lat){toast('위치 확인 중...','info');return}
-    S.busy=true;S.gpsFull=[];
+    if(S.busy)return;S.busy=true;S.gpsFull=[];
     setSt('wait');showLoad();
-
     let all=[];
     for(let pg=1;pg<=10;pg++){
-      const p=mkP(pg);
-      const items=await fetchPage(p);
+      const items=await fetchPage(mkP(pg));
       if(!items)break;
       all=all.concat(items);
       $('totB').textContent=`${all.length}건 수집중...`;
       if(items.length<PER)break;
     }
-
-    if(!all.length){
-      showErr('데이터를 가져올 수 없습니다.\n\n⚙️ 설정에서 인증키와 프록시를 확인해주세요.');
-      setSt('err');S.busy=false;return;
-    }
-
-    const rM=S.rad*1000;
-    const pp=$('ppSel').value;
+    if(!all.length){showErrUI();setSt('err');S.busy=false;return}
+    const rM=S.rad*1000,pp=$('ppSel').value;
     S.gpsFull=all.map(it=>{
       const la=parseFloat(it.WGS84_LAT),lo=parseFloat(it.WGS84_LOT);
       if(isNaN(la)||isNaN(lo))return null;
@@ -446,82 +412,45 @@ const App=(()=>{
       if(pp&&!(it.INSTL_PRPS_SE_NM||'').includes(pp))return null;
       return{...it,_dist:d};
     }).filter(Boolean).sort((a,b)=>a._dist-b._dist);
-
-    S.total=S.gpsFull.length;
-    S.pages=Math.max(1,Math.ceil(S.gpsFull.length/PER));S.page=1;
-    paginate();setSt('ok');
-    toast(`📍 반경 ${S.rad}km 내 ${S.gpsFull.length}건`,'success');
+    S.total=S.gpsFull.length;S.pages=Math.max(1,Math.ceil(S.gpsFull.length/PER));S.page=1;
+    paginate();setSt('ok');toast(`📍 반경 ${S.rad}km 내 ${S.gpsFull.length}건`,'success');
     S.busy=false;
   }
 
   function mkP(pg){
     const p=new URLSearchParams({serviceKey:S.key,pageNo:String(pg||S.page),numOfRows:String(PER),type:'json'});
-    const addr=$('addrIn').value.trim();
-    if(addr)p.append('LCTN_LOTNO_ADDR',addr);
-    return p;
+    const a=$('addrIn').value.trim();if(a)p.append('LCTN_LOTNO_ADDR',a);return p;
   }
 
   async function fetchPage(params){
-    if(S.op!==null){
-      const r=await single(BASE+S.op,params);
-      if(r)return r;
-      S.op=null;
-    }
-    for(const op of OPS){
-      const r=await single(BASE+op,params);
-      if(r){S.op=op;localStorage.setItem('cop',op);return r}
-    }
+    if(S.op!==null){const r=await single(BASE+S.op,params);if(r)return r;S.op=null}
+    for(const op of OPS){const r=await single(BASE+op,params);if(r){S.op=op;localStorage.setItem('cop',op);return r}}
     return null;
   }
 
   async function single(url,params){
-    const full=`${url}?${params}`;
-    const res=await smartFetch(full);
+    const res=await smartFetch(`${url}?${params}`);
     if(!res)return null;
-    try{
-      const txt=await res.text();
-      let j;try{j=JSON.parse(txt)}catch{return null}
-      const p=parseR(j);
-      return p?p.items:null;
-    }catch{return null}
+    try{const txt=await res.text();let j;try{j=JSON.parse(txt)}catch{return null}const p=parseR(j);return p?p.items:null}catch{return null}
   }
 
   async function tryAllOps(params){
-    if(S.op!==null){
-      const ok=await tryOp(BASE+S.op,params);
-      if(ok)return true;
-      S.op=null;
-    }
-    for(const op of OPS){
-      const ok=await tryOp(BASE+op,params);
-      if(ok){S.op=op;localStorage.setItem('cop',op);return true}
-    }
-    setSt('err');
-    showErr('API 호출 실패\n\n확인사항:\n① ⚙️ 인증키 확인 (Encoding 키)\n② ⚙️ 프록시 URL 설정\n③ 공공데이터포털 API 활용 승인 확인\n\n💡 설정의 프록시 가이드를 참고하세요');
-    toast('API 호출 실패','error');
-    return false;
+    if(S.op!==null){const ok=await tryOp(BASE+S.op,params);if(ok)return true;S.op=null}
+    for(const op of OPS){const ok=await tryOp(BASE+op,params);if(ok){S.op=op;localStorage.setItem('cop',op);return true}}
+    setSt('err');showErrUI();toast('❌ API 호출 실패','error');return false;
   }
 
   async function tryOp(url,params){
-    $('epTxt').textContent=(S.wp!=null?'프록시':'직접')+' → '+url.replace('https://','').substring(0,30)+'...';
-    const full=`${url}?${params}`;
-    const res=await smartFetch(full);
+    const res=await smartFetch(`${url}?${params}`);
     if(!res)return false;
     try{
-      const txt=await res.text();
-      let j;
+      const txt=await res.text();let j;
       try{j=JSON.parse(txt)}catch{
-        if(txt.includes('<returnReasonCode>')){
-          const msg=txt.match(/<returnAuthMsg>(.*?)<\/returnAuthMsg>/)?.[1]||'인증 오류';
-          showErr(`인증 오류: ${msg}`);setSt('err');toast(msg,'error');
-        }
+        if(txt.includes('<returnReasonCode>')){const msg=txt.match(/<returnAuthMsg>(.*?)<\/returnAuthMsg>/)?.[1]||'인증 오류';showErrUI('인증 오류: '+msg);setSt('err');toast(msg,'error')}
         return false;
       }
-      const p=parseR(j);
-      if(!p)return false;
-      S.data=p.items;S.total=p.totalCount;
-      S.pages=Math.max(1,Math.ceil(p.totalCount/PER));
-      return true;
+      const p=parseR(j);if(!p)return false;
+      S.data=p.items;S.total=p.totalCount;S.pages=Math.max(1,Math.ceil(p.totalCount/PER));return true;
     }catch{return false}
   }
 
@@ -540,40 +469,31 @@ const App=(()=>{
   }
 
   function applyFilter(){
-    const pp=$('ppSel').value;
-    const addr=$('addrIn').value.trim();
+    const pp=$('ppSel').value,addr=$('addrIn').value.trim();
     if(pp)S.data=S.data.filter(it=>(it.INSTL_PRPS_SE_NM||'').includes(pp));
-    if(addr&&S.data.length){
-      const f=S.data.filter(it=>((it.LCTN_LOTNO_ADDR||'')+(it.LCTN_ROAD_NM_ADDR||'')+(it.MNG_INST_NM||'')).includes(addr));
-      if(f.length)S.data=f;
-    }
+    if(addr&&S.data.length){const f=S.data.filter(it=>((it.LCTN_LOTNO_ADDR||'')+(it.LCTN_ROAD_NM_ADDR||'')+(it.MNG_INST_NM||'')).includes(addr));if(f.length)S.data=f}
   }
 
   function paginate(){
-    if(S.gpsFull.length){
-      const s=(S.page-1)*PER;
-      S.data=S.gpsFull.slice(s,s+PER);
-      renderList(S.data,true);
-    }else renderList(S.data,false);
+    if(S.gpsFull.length){const s=(S.page-1)*PER;S.data=S.gpsFull.slice(s,s+PER);renderList(S.data,true)}
+    else renderList(S.data,false);
     updatePag();
   }
 
-  // ── 선택 ──
   function selectItem(item,el){
     S.sel=item;
     document.querySelectorAll('.ci').forEach(e=>e.classList.remove('active'));
     el.classList.add('active');
-
     const addr=item.LCTN_ROAD_NM_ADDR||item.LCTN_LOTNO_ADDR||'주소 없음';
     const pp=item.INSTL_PRPS_SE_NM||'설치목적 미상';
     const lat=item.WGS84_LAT,lon=item.WGS84_LOT;
     const dt=item._dist!=null?fmtD(item._dist):'';
-
     $('detailWrap').innerHTML=`
       <div class="detail fi">
         <div class="dh">
           <div class="dh-ic">📷</div>
           <div class="dh-pp">${esc(pp)}</div>
+          <div class="dh-org">${esc(item.MNG_INST_NM||'-')}</div>
           <div class="dh-ad">${esc(addr)}</div>
           ${lat&&lon?`<div class="dh-co">📍 ${lat}, ${lon}</div>`:''}
           ${dt?`<div class="dh-di">📏 내 위치에서 ${dt}</div>`:''}
@@ -586,28 +506,25 @@ const App=(()=>{
         </div>
         <div class="ig">
           ${[
-            {l:'관리번호',v:item.MNG_NO},{l:'관리기관',v:item.MNG_INST_NM},{l:'전화번호',v:item.MNG_INST_TELNO},
-            {l:'설치목적',v:item.INSTL_PRPS_SE_NM},{l:'설치년월',v:item.INSTL_YM||'-'},
-            {l:'카메라 수',v:item.CAM_CNTOM?item.CAM_CNTOM+'대':'-'},
-            {l:'화소수',v:item.CAM_PIXEL_CNT?item.CAM_PIXEL_CNT+'만화소':'-'},
-            {l:'보관일수',v:item.KPNG_DAY_CNT??'-'},{l:'촬영각도',v:item.SHT_ANGLE_INFO||'-'},
-            {l:'지번주소',v:item.LCTN_LOTNO_ADDR||'-'},{l:'도로명주소',v:item.LCTN_ROAD_NM_ADDR||'-'},
-            {l:'자치단체코드',v:item.OPN_ATMY_GRP_CD},{l:'데이터기준일',v:item.DAT_CRTR_YMD},
-            {l:'최종수정일',v:item.LAST_MDCN_PNT},{l:'위도',v:item.WGS84_LAT},{l:'경도',v:item.WGS84_LOT},
-          ].map(f=>`<div class="if"><span class="l">${f.l}</span><span class="v">${esc(String(f.v??'-'))}</span></div>`).join('')}
+            {l:'관리번호',v:item.MNG_NO},{l:'관리기관',v:item.MNG_INST_NM},
+            {l:'전화번호',v:item.MNG_INST_TELNO},{l:'설치목적',v:item.INSTL_PRPS_SE_NM},
+            {l:'설치년월',v:item.INSTL_YM||'-'},{l:'카메라 수',v:item.CAM_CNTOM?item.CAM_CNTOM+'대':'-'},
+            {l:'화소수',v:item.CAM_PIXEL_CNT?item.CAM_PIXEL_CNT+'만화소':'-'},{l:'보관일수',v:item.KPNG_DAY_CNT??'-'},
+            {l:'촬영각도',v:item.SHT_ANGLE_INFO||'-'},{l:'지번주소',v:item.LCTN_LOTNO_ADDR||'-'},
+            {l:'도로명주소',v:item.LCTN_ROAD_NM_ADDR||'-'},{l:'자치단체코드',v:item.OPN_ATMY_GRP_CD},
+            {l:'데이터기준일',v:item.DAT_CRTR_YMD},{l:'최종수정일',v:item.LAST_MDCN_PNT},
+            {l:'위도',v:item.WGS84_LAT},{l:'경도',v:item.WGS84_LOT},
+          ].map(f=>`<div class="if"><div class="l">${f.l}</div><div class="v">${esc(String(f.v??'-'))}</div></div>`).join('')}
         </div>
       </div>`;
-
-    // 상세 탭으로 자동 전환
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
     document.querySelector('[data-tab="detail"]').classList.add('on');
     $('detailPanel').classList.add('on');
   }
 
-  // ── 렌더링 ──
   function renderList(items,showDist){
-    if(!items.length){$('listWrap').innerHTML='<div class="empty"><p>😕 결과 없음</p><p>검색 조건을 변경해보세요</p></div>';$('totB').textContent='0건';return}
+    if(!items.length){$('listWrap').innerHTML='<div class="empty"><div style="font-size:40px">😕</div><div>검색 결과가 없습니다</div></div>';$('totB').textContent='0건';return}
     $('totB').textContent=S.total.toLocaleString()+'건';
     $('listWrap').innerHTML=items.map((it,i)=>{
       const addr=it.LCTN_ROAD_NM_ADDR||it.LCTN_LOTNO_ADDR||'주소 없음';
@@ -623,30 +540,45 @@ const App=(()=>{
     $('listWrap').querySelectorAll('.ci').forEach(el=>{el.onclick=()=>selectItem(S.data[+el.dataset.i],el)});
   }
 
-  function showLoad(){$('listWrap').innerHTML='<div class="loading"><div class="spinner"></div><span>조회중...</span></div>'}
-  function showErr(m){$('listWrap').innerHTML=`<div class="empty"><p>❌ 오류</p><p style="white-space:pre-line;margin-top:8px;font-size:12px;line-height:1.6">${esc(m)}</p></div>`;$('totB').textContent='오류'}
+  function showLoad(){$('listWrap').innerHTML='<div class="loading"><div class="spinner"></div><span>조회중... (최대 40초)</span></div>'}
+
+  function showErrUI(msg){
+    const logHtml=S.tryLog.length?'<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:11px;color:var(--txt3);font-family:monospace;word-break:break-all">'+S.tryLog.map(l=>'• '+esc(l)).join('<br>')+'</div>':'';
+    $('listWrap').innerHTML=`
+      <div class="empty">
+        <div style="font-size:48px">❌</div>
+        <div style="font-size:16px;font-weight:700;color:var(--red)">${msg?esc(msg):'API 호출 실패'}</div>
+        <div class="err-box">
+          <div class="err-title">해결 방법</div>
+          <div class="err-step"><span>①</span> ⚙️ 설정 → <strong>프록시 URL 설정</strong> (필수!)<br>Google Apps Script 무료 프록시 가이드 참고</div>
+          <div class="err-step"><span>②</span> ⚙️ 설정 → 인증키 확인 (Encoding 키)</div>
+          <div class="err-step"><span>③</span> 공공데이터포털에서 API 활용 승인 확인</div>
+          <div class="err-step"><span>④</span> 잠시 후 다시 시도</div>
+          ${logHtml}
+        </div>
+      </div>`;
+    $('totB').textContent='오류';
+  }
+
   function updatePag(){$('pgInfo').textContent=`${S.page} / ${S.pages}`;$('btnP').disabled=S.page<=1;$('btnN').disabled=S.page>=S.pages}
   function setSt(s){const m={wait:{c:'wait',t:'호출중...'},ok:{c:'ok',t:`연결 성공 · ${S.total.toLocaleString()}건`},err:{c:'err',t:'연결 실패'}};const v=m[s]||{c:'wait',t:'대기중'};$('stTxt').innerHTML=`<span class="sd ${v.c}"></span>${v.t}`}
   function reset(){
     $('ppSel').value='';$('addrIn').value='';$('gpsChk').checked=false;S.gps=false;$('radSel').disabled=true;
-    $('gpsT').className='gps-t';$('gpsSt').textContent='';$('gpsRow').className='gps-row';
-    S.page=1;S.data=[];S.gpsFull=[];S.total=0;S.pages=0;
-    $('listWrap').innerHTML='<div class="empty"><p>🔍 주소를 입력하거나</p><p>📍 내 위치를 켜고 검색하세요</p></div>';
-    $('totB').textContent='0건';$('pgInfo').textContent='- / -';
-    $('btnP').disabled=$('btnN').disabled=true;
-    $('detailWrap').innerHTML='<div class="empty"><p style="font-size:40px">📷</p><p>목록에서 CCTV를 선택하세요</p></div>';
-    $('stTxt').innerHTML='<span class="sd wait"></span>대기중';
-    // 목록 탭으로
+    $('gpsT').className='gps-t';$('gpsSt').textContent='OFF — 켜면 반경 내 CCTV 조회';$('gpsBox').className='gps-box';
+    S.page=1;S.data=[];S.gpsFull=[];S.total=0;S.pages=0;S.busy=false;S.tryLog=[];
+    $('listWrap').innerHTML='<div class="empty"><div style="font-size:48px">🔍</div><div>주소를 입력하거나<br>내 위치를 켜고 검색하세요</div></div>';
+    $('totB').textContent='0건';$('pgInfo').textContent='- / -';$('btnP').disabled=$('btnN').disabled=true;
+    $('detailWrap').innerHTML='<div class="empty"><div style="font-size:48px">📷</div><div>목록에서 CCTV를 선택하면<br>상세정보가 표시됩니다</div></div>';
+    $('stTxt').innerHTML='<span class="sd wait"></span>대기중';$('epTxt').textContent='';
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
-    document.querySelector('[data-tab="list"]').classList.add('on');
-    $('listPanel').classList.add('on');
+    document.querySelector('[data-tab="list"]').classList.add('on');$('listPanel').classList.add('on');
   }
 
   function hav(a1,o1,a2,o2){const R=6371000,r=d=>d*Math.PI/180,dA=r(a2-a1),dO=r(o2-o1),a=Math.sin(dA/2)**2+Math.cos(r(a1))*Math.cos(r(a2))*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
   function fmtD(m){return m>=1000?(m/1000).toFixed(1)+'km':Math.round(m)+'m'}
   function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
-  function toast(msg,type='info'){const t=$('toast');t.textContent=msg;t.className=`toast ${type}`;requestAnimationFrame(()=>t.classList.add('show'));clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),4000)}
+  function toast(msg,type='info'){const t=$('toast');t.textContent=msg;t.className=`toast ${type}`;requestAnimationFrame(()=>t.classList.add('show'));clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),4500)}
 
   return{init};
 })();
