@@ -8,99 +8,73 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: #0f1923;
-    color: #e0e0e0;
-    min-height: 100vh;
+    background: #0f1923; color: #e0e0e0; min-height: 100vh;
   }
-
-  /* Header */
   .header {
-    background: #1a2733;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #2a3a4a;
+    background: #1a2733; padding: 12px 16px; display: flex;
+    align-items: center; border-bottom: 1px solid #2a3a4a;
   }
   .header-left { display: flex; align-items: center; gap: 10px; }
   .header-left svg { width: 28px; height: 28px; fill: #4fc3f7; }
   .header-title { font-size: 18px; font-weight: 700; color: #fff; }
   .header-subtitle { font-size: 11px; color: #78909c; }
 
-  /* API Key Bar */
   .api-bar {
-    background: #162029;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #2a3a4a;
-    flex-wrap: wrap;
+    background: #162029; padding: 10px 16px; display: flex;
+    align-items: center; gap: 8px; border-bottom: 1px solid #2a3a4a; flex-wrap: wrap;
   }
   .api-bar label { font-size: 12px; color: #90a4ae; font-weight: 600; white-space: nowrap; }
-  .api-bar input[type="text"] {
+  .api-bar input {
     flex: 1; min-width: 180px; background: #0f1923; border: 1px solid #37474f;
     border-radius: 6px; padding: 8px 12px; color: #e0e0e0; font-size: 13px;
-    font-family: monospace; outline: none; transition: border-color 0.15s ease;
+    font-family: monospace; outline: none;
   }
-  .api-bar input[type="text"]:focus { border-color: #4fc3f7; }
-  .api-bar input[type="text"]::placeholder { color: #546e7a; }
+  .api-bar input:focus { border-color: #4fc3f7; }
+  .api-bar input::placeholder { color: #546e7a; }
   .btn-save {
     background: #00897b; color: #fff; border: none; border-radius: 6px;
     padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer;
-    white-space: nowrap; transition: background 0.15s ease;
   }
   .btn-save:hover { background: #00796b; }
 
-  /* Search Bar */
   .search-bar {
-    background: #1a2733;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #2a3a4a;
-    flex-wrap: wrap;
+    background: #1a2733; padding: 10px 16px; display: flex;
+    align-items: center; gap: 8px; border-bottom: 1px solid #2a3a4a; flex-wrap: wrap;
   }
-  .search-bar select {
+  .search-bar select, .search-bar input {
     background: #0f1923; border: 1px solid #37474f; border-radius: 6px;
-    padding: 8px 10px; color: #e0e0e0; font-size: 13px; outline: none; cursor: pointer;
+    padding: 8px 10px; color: #e0e0e0; font-size: 13px; outline: none;
   }
-  .search-bar select:focus { border-color: #4fc3f7; }
+  .search-bar input { flex: 1; min-width: 150px; }
+  .search-bar select:focus, .search-bar input:focus { border-color: #4fc3f7; }
+  .search-bar input::placeholder { color: #546e7a; }
   .btn-search {
     background: #e53935; color: #fff; border: none; border-radius: 6px;
     padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s ease;
   }
   .btn-search:hover { background: #c62828; }
   .btn-reset {
     background: #1565c0; color: #fff; border: none; border-radius: 6px;
     padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s ease;
   }
   .btn-reset:hover { background: #0d47a1; }
-
-  /* Pagination */
   .pagination { display: flex; align-items: center; gap: 4px; margin-left: auto; }
   .pagination button {
     background: #0f1923; border: 1px solid #37474f; color: #90a4ae;
     border-radius: 4px; padding: 6px 10px; font-size: 12px; cursor: pointer;
-    transition: all 0.15s ease;
   }
   .pagination button:hover { border-color: #4fc3f7; color: #4fc3f7; }
   .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
   .pagination span { font-size: 12px; color: #78909c; padding: 0 6px; }
 
-  /* Main Layout */
-  .main { display: flex; height: calc(100vh - 160px); min-height: 500px; }
+  .main { display: flex; height: calc(100vh - 165px); min-height: 500px; }
 
-  /* Sidebar */
   .sidebar {
-    width: 200px; min-width: 200px; background: #162029;
-    border-right: 1px solid #2a3a4a; display: flex; flex-direction: column; overflow: hidden;
+    width: 210px; min-width: 210px; background: #162029;
+    border-right: 1px solid #2a3a4a; display: flex; flex-direction: column;
   }
   .sidebar-header {
-    padding: 12px 12px 8px; display: flex; align-items: center;
+    padding: 10px 12px; display: flex; align-items: center;
     justify-content: space-between; border-bottom: 1px solid #2a3a4a;
   }
   .sidebar-header span { font-size: 13px; font-weight: 700; color: #b0bec5; }
@@ -108,31 +82,35 @@
     background: #37474f; color: #90a4ae; font-size: 11px;
     padding: 2px 8px; border-radius: 10px; font-weight: 600;
   }
-  .sidebar-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .sidebar-list { flex: 1; overflow-y: auto; }
   .sidebar-list::-webkit-scrollbar { width: 4px; }
   .sidebar-list::-webkit-scrollbar-thumb { background: #37474f; border-radius: 2px; }
 
   .cctv-item {
-    display: block; padding: 10px 12px; cursor: pointer;
-    border-bottom: 1px solid #1e2d3a; transition: background 0.15s ease;
+    padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #1e2d3a; transition: background 0.15s;
   }
   .cctv-item:hover { background: #1e2d3a; }
   .cctv-item.active { background: #1a3a4a; border-left: 3px solid #4fc3f7; }
   .cctv-name {
-    font-size: 12px; font-weight: 600; color: #e0e0e0; display: block;
+    font-size: 12px; font-weight: 600; color: #e0e0e0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .cctv-addr {
-    font-size: 10px; color: #78909c; margin-top: 2px; display: block;
+    font-size: 10px; color: #78909c; margin-top: 3px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .cctv-status {
+  .cctv-tag {
+    display: inline-block; font-size: 9px; padding: 1px 5px;
+    border-radius: 3px; margin-top: 3px; font-weight: 600;
+  }
+  .tag-child { background: #1b5e20; color: #a5d6a7; }
+  .tag-traffic { background: #0d47a1; color: #90caf9; }
+  .tag-etc { background: #37474f; color: #b0bec5; }
+  .dot {
     display: inline-block; width: 6px; height: 6px; border-radius: 50%;
     background: #4caf50; margin-right: 4px; vertical-align: middle;
   }
-  .cctv-status.offline { background: #e53935; }
 
-  /* Loading */
   .loading {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 40px; color: #546e7a; font-size: 13px; gap: 12px;
@@ -142,164 +120,122 @@
     border-top-color: #4fc3f7; border-radius: 50%; animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .empty-state {
     display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 40px 16px; color: #546e7a;
-    font-size: 12px; text-align: center; gap: 6px;
+    padding: 40px 16px; color: #546e7a; font-size: 12px; text-align: center; gap: 6px;
   }
 
-  /* Content */
-  .content { flex: 1; display: flex; flex-direction: column; background: #0f1923; overflow: hidden; }
-
-  /* Viewer */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .viewer {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    position: relative; background: #0a1218;
+    background: #0a1218; position: relative;
   }
   .viewer-placeholder { text-align: center; color: #546e7a; }
   .viewer-placeholder svg { width: 80px; height: 80px; fill: #37474f; margin-bottom: 16px; }
   .viewer-placeholder p { font-size: 14px; margin-bottom: 6px; }
   .viewer-placeholder .sub { font-size: 12px; color: #37474f; }
 
-  /* Stream */
   .stream-detail {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; width: 100%; height: 100%;
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start; padding: 20px; overflow-y: auto;
   }
   .stream-box {
-    width: 90%; max-width: 800px; aspect-ratio: 16/9; background: #111;
-    border-radius: 8px; border: 1px solid #2a3a4a; display: flex;
-    align-items: center; justify-content: center; position: relative; overflow: hidden;
+    width: 100%; max-width: 820px; aspect-ratio: 16/9; background: #111;
+    border-radius: 8px; border: 1px solid #2a3a4a; position: relative;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
   }
-  .stream-box video, .stream-box img {
-    width: 100%; height: 100%; object-fit: contain; border-radius: 8px;
-  }
-  .stream-box svg { width: 60px; height: 60px; fill: #37474f; }
   .stream-label {
-    position: absolute; top: 10px; left: 12px; background: rgba(0,0,0,0.7);
+    position: absolute; top: 10px; left: 12px; background: rgba(0,0,0,0.75);
     color: #4fc3f7; font-size: 11px; padding: 4px 10px; border-radius: 4px;
-    font-weight: 600; z-index: 2;
+    font-weight: 600; z-index: 2; max-width: 70%; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
   }
-  .stream-live {
-    position: absolute; top: 10px; right: 12px; background: #e53935;
-    color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 4px;
-    font-weight: 700; letter-spacing: 0.05em; z-index: 2;
-  }
-  .cctv-info-bar {
-    margin-top: 12px; display: flex; gap: 20px; font-size: 12px;
-    color: #90a4ae; flex-wrap: wrap; justify-content: center;
-  }
-  .cctv-info-bar span { display: flex; align-items: center; gap: 4px; }
 
-  /* Toast */
+  .info-card {
+    margin-top: 12px; width: 100%; max-width: 820px;
+    background: #162029; border-radius: 8px; border: 1px solid #2a3a4a;
+    padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
+  }
+  .info-field { display: flex; flex-direction: column; gap: 2px; }
+  .info-field .lbl { font-size: 10px; color: #546e7a; font-weight: 600; }
+  .info-field .val { font-size: 12px; color: #e0e0e0; word-break: break-all; }
+
   .toast {
     position: fixed; top: 16px; right: 16px; padding: 12px 20px;
     border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 9999;
-    transform: translateX(120%); transition: transform 0.3s ease; max-width: 400px;
+    transform: translateX(120%); transition: transform 0.3s ease; max-width: 420px;
   }
   .toast.show { transform: translateX(0); }
   .toast.success { background: #1b5e20; color: #a5d6a7; border: 1px solid #2e7d32; }
-  .toast.error { background: #b71c1c; color: #ef9a9a; border: 1px solid #c62828; }
-  .toast.info { background: #0d47a1; color: #90caf9; border: 1px solid #1565c0; }
+  .toast.error   { background: #b71c1c; color: #ef9a9a; border: 1px solid #c62828; }
+  .toast.info    { background: #0d47a1; color: #90caf9; border: 1px solid #1565c0; }
 
-  /* Info Bar */
   .info-bar {
-    background: #162029; padding: 8px 16px; display: flex; align-items: center;
-    justify-content: space-between; border-top: 1px solid #2a3a4a;
-    font-size: 11px; color: #546e7a; flex-wrap: wrap; gap: 8px;
+    background: #162029; padding: 7px 16px; display: flex;
+    align-items: center; justify-content: space-between;
+    border-top: 1px solid #2a3a4a; font-size: 11px; color: #546e7a; flex-wrap: wrap; gap: 6px;
   }
   .status-dot {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px;
   }
-  .status-dot.connected { background: #4caf50; }
-  .status-dot.disconnected { background: #e53935; }
-  .status-dot.waiting { background: #ff9800; }
+  .status-dot.ok  { background: #4caf50; }
+  .status-dot.err { background: #e53935; }
+  .status-dot.wait{ background: #ff9800; }
 
-  /* Animations */
-  .fade-in { opacity: 1; }
-  @media (prefers-reduced-motion: no-preference) {
-    .fade-in { animation: fadeIn 0.4s ease-out both; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  }
+  .fade-in { animation: fadeIn 0.3s ease both; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 
   @media (max-width: 600px) {
-    .sidebar { width: 140px; min-width: 140px; }
-    .cctv-name { font-size: 11px; }
-    .cctv-addr { font-size: 9px; }
-    .api-bar { padding: 8px 10px; }
-    .search-bar { padding: 8px 10px; }
+    .sidebar { width: 150px; min-width: 150px; }
+    .info-card { grid-template-columns: 1fr 1fr; }
     .pagination { margin-left: 0; margin-top: 4px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <!-- Header -->
-<div class="header fade-in">
+<div class="header">
   <div class="header-left">
     <svg viewBox="0 0 24 24"><path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h1v3l3-3h2.52A7.987 7.987 0 0 1 10 12.48c0-1.64.8-3.1 2.03-4.01A3.005 3.005 0 0 1 15 6.48c.83 0 1.58.34 2.12.88.37-.22.78-.38 1.22-.38h-.34zM17 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3zm0-5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
     <div>
       <div class="header-title">CCTV 뷰어</div>
-      <div class="header-subtitle">ITS 국가교통정보센터 CCTV API</div>
+      <div class="header-subtitle">행정안전부 공공데이터 API · apis.data.go.kr/1741000/cctv_info</div>
     </div>
   </div>
 </div>
 
 <!-- API Key Bar -->
-<div class="api-bar fade-in">
+<div class="api-bar">
   <label>🔑 인증키</label>
-  <input type="text" id="apiKeyInput" placeholder="공공데이터포털 API 인증키 (Encoding 키)" />
+  <input type="text" id="apiKeyInput" placeholder="공공데이터포털 일반 인증키 (Encoding 키)" />
   <button class="btn-save" id="btnSaveKey">저장</button>
 </div>
 
 <!-- Search Bar -->
-<div class="search-bar fade-in">
-  <!-- 지역 선택 (좌표 범위 자동 설정) -->
-  <select id="regionSelect" title="지역 선택">
-    <option value="seoul">서울</option>
-    <option value="gyeonggi">경기</option>
-    <option value="incheon">인천</option>
-    <option value="busan">부산</option>
-    <option value="daegu">대구</option>
-    <option value="daejeon">대전</option>
-    <option value="gwangju">광주</option>
-    <option value="ulsan">울산</option>
-    <option value="sejong">세종</option>
-    <option value="gangwon">강원</option>
-    <option value="chungbuk">충북</option>
-    <option value="chungnam">충남</option>
-    <option value="jeonbuk">전북</option>
-    <option value="jeonnam">전남</option>
-    <option value="gyeongbuk">경북</option>
-    <option value="gyeongnam">경남</option>
-    <option value="jeju">제주</option>
-    <option value="all">전국</option>
+<div class="search-bar">
+  <select id="filterPurpose">
+    <option value="">전체 목적</option>
+    <option value="어린이보호">어린이보호</option>
+    <option value="교통단속">교통단속</option>
+    <option value="방범">방범</option>
+    <option value="재난재해">재난재해</option>
+    <option value="주정차단속">주정차단속</option>
   </select>
-
-  <!-- CCTV 유형 -->
-  <select id="cctvType" title="CCTV 유형">
-    <option value="1">교통 CCTV</option>
-    <option value="2">도로 CCTV</option>
-    <option value="3">교통 + 도로</option>
-  </select>
-
+  <input type="text" id="searchKeyword" placeholder="주소, 관리기관명으로 검색..." />
   <button class="btn-search" id="btnSearch">검색</button>
   <button class="btn-reset" id="btnReset">초기화</button>
-
   <div class="pagination">
     <button id="btnPrev" disabled>◀ 이전</button>
-    <span id="pageInfo">0 / 0</span>
+    <span id="pageInfo">- / -</span>
     <button id="btnNext" disabled>다음 ▶</button>
   </div>
 </div>
 
-<!-- Main Layout -->
+<!-- Main -->
 <div class="main">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <span>CCTV 목록</span>
@@ -313,445 +249,394 @@
     </div>
   </div>
 
-  <!-- Content -->
   <div class="content">
     <div class="viewer" id="viewer">
       <div class="viewer-placeholder" id="viewerPlaceholder">
         <svg viewBox="0 0 24 24"><path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h1v3l3-3h2.52A7.987 7.987 0 0 1 10 12.48c0-1.64.8-3.1 2.03-4.01A3.005 3.005 0 0 1 15 6.48c.83 0 1.58.34 2.12.88.37-.22.78-.38 1.22-.38h-.34zM17 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3zm0-5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
         <p>좌측 목록에서 CCTV를 선택하세요</p>
-        <p class="sub">지역과 유형을 선택 후 검색하면 CCTV 목록이 표시됩니다</p>
+        <p class="sub">총 381,409건의 CCTV 설치정보가 제공됩니다</p>
       </div>
       <div class="stream-detail" id="streamDetail" style="display:none;">
-        <div class="stream-box" id="streamBox">
-          <span class="stream-label" id="streamLabel"></span>
-          <span class="stream-live">● LIVE</span>
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </div>
-        <div class="cctv-info-bar" id="cctvInfoBar"></div>
+        <div class="stream-box" id="streamBox"></div>
+        <div class="info-card" id="infoCard"></div>
       </div>
     </div>
 
     <div class="info-bar">
-      <div id="statusText"><span class="status-dot waiting"></span>API 연결 대기중</div>
-      <div id="endpointText">openapi.its.go.kr/cctvInfo</div>
+      <div id="statusText"><span class="status-dot wait"></span>API 연결 대기중</div>
+      <div id="endpointText">https://apis.data.go.kr/1741000/cctv_info</div>
     </div>
   </div>
 </div>
 
 <script>
 // ============================================================
-//  ITS 국가교통정보센터 CCTV API 연동
-//  API 문서: https://openapi.its.go.kr
+//  행정안전부 CCTV 설치정보 API 연동
+//  End Point: https://apis.data.go.kr/1741000/cctv_info
 //
-//  ★ 필수 파라미터: apiKey, type, cctvType, minX, maxX, minY, maxY
-//    - minX/maxX: 경도(longitude) 범위
-//    - minY/maxY: 위도(latitude) 범위
-//    - cctvType: 1=교통정보, 2=도로정보, 3=교통+도로
-//    - type: 응답 형식 (json / xml)
+//  ★ 실제 응답 JSON 구조 (스크린샷 분석):
+//  응답 최상위 키가 한글일 수도, 영문일 수도 있으므로
+//  여러 구조를 모두 대응하는 범용 파서 사용
+//
+//  CCTV 항목 필드:
+//  MNG_NO, OPN_ATMY_GRP_CD, SHT_ANGLE_INFO,
+//  WGS84_LAT, WGS84_LOT, CAM_CNTOM, CAM_PIXEL_CNT,
+//  DAT_CRTR_YMD, DAT_UPDT_PNT, DAT_UPDT_SE,
+//  INSTL_PRPS_SE_NM, INSTL_YM, KPNG_DAY_CNT,
+//  LAST_MDCN_PNT, LCTN_LOTNO_ADDR, LCTN_ROAD_NM_ADDR,
+//  MNG_INST_NM, MNG_INST_TELNO
 // ============================================================
-const CCTVApp = (() => {
 
-  // ── 지역별 좌표 범위 (경도 minX~maxX, 위도 minY~maxY) ──
-  const REGIONS = {
-    seoul:    { name: '서울',   minX: 126.764,  maxX: 127.183,  minY: 37.428,  maxY: 37.701 },
-    gyeonggi: { name: '경기',  minX: 126.386,  maxX: 127.775,  minY: 36.894,  maxY: 38.284 },
-    incheon:  { name: '인천',  minX: 126.369,  maxX: 126.780,  minY: 37.345,  maxY: 37.617 },
-    busan:    { name: '부산',  minX: 128.855,  maxX: 129.263,  minY: 34.879,  maxY: 35.389 },
-    daegu:    { name: '대구',  minX: 128.421,  maxX: 128.766,  minY: 35.768,  maxY: 35.989 },
-    daejeon:  { name: '대전',  minX: 127.247,  maxX: 127.535,  minY: 36.197,  maxY: 36.488 },
-    gwangju:  { name: '광주',  minX: 126.752,  maxX: 127.005,  minY: 35.063,  maxY: 35.244 },
-    ulsan:    { name: '울산',  minX: 128.955,  maxX: 129.361,  minY: 35.384,  maxY: 35.727 },
-    sejong:   { name: '세종',  minX: 126.845,  maxX: 127.095,  minY: 36.432,  maxY: 36.687 },
-    gangwon:  { name: '강원',  minX: 127.050,  maxX: 129.370,  minY: 37.020,  maxY: 38.620 },
-    chungbuk: { name: '충북',  minX: 127.250,  maxX: 128.650,  minY: 36.000,  maxY: 37.150 },
-    chungnam: { name: '충남',  minX: 125.980,  maxX: 127.380,  minY: 35.980,  maxY: 37.030 },
-    jeonbuk:  { name: '전북',  minX: 125.980,  maxX: 127.920,  minY: 35.280,  maxY: 36.130 },
-    jeonnam:  { name: '전남',  minX: 125.060,  maxX: 127.920,  minY: 33.890,  maxY: 35.510 },
-    gyeongbuk:{ name: '경북',  minX: 128.330,  maxX: 130.920,  minY: 35.570,  maxY: 37.100 },
-    gyeongnam:{ name: '경남',  minX: 127.560,  maxX: 129.350,  minY: 34.590,  maxY: 35.900 },
-    jeju:     { name: '제주',  minX: 126.117,  maxX: 126.978,  minY: 33.106,  maxY: 33.569 },
-    all:      { name: '전국',  minX: 124.000,  maxX: 132.000,  minY: 33.000,  maxY: 39.000 },
-  };
+const App = (() => {
 
-  const CONFIG = {
-    // ITS 국가교통정보센터 CCTV API
-    BASE_URL: 'https://openapi.its.go.kr/cctvInfo',
-    DATA_TYPE: 'json',
-    PAGE_SIZE: 20,
-  };
+  const BASE = 'https://apis.data.go.kr/1741000/cctv_info';
+
+  // 오퍼레이션 후보 목록 — 첫 번째 성공한 경로를 기억
+  const OP_CANDIDATES = [
+    '/getCCTVList',
+    '/getCctvList',
+    '/getCCTVInfo',
+    '/getCctvInfo',
+    '',                // 오퍼레이션 없이 베이스 URL 직접
+  ];
+
+  const PAGE_SIZE = 10;
 
   let state = {
-    apiKey: localStorage.getItem('cctv_api_key') || '',
-    cctvData: [],
+    apiKey: localStorage.getItem('cctv_key') || '',
+    data: [],
     totalCount: 0,
-    currentPage: 1,
-    totalPages: 0,
-    selectedCctv: null,
-    isLoading: false,
-    currentHls: null,
+    page: 1,
+    pages: 0,
+    selected: null,
+    loading: false,
+    opPath: localStorage.getItem('cctv_op') || null, // 성공한 오퍼레이션 경로 캐시
   };
 
-  const $ = (sel) => document.querySelector(sel);
-  const dom = {};
+  const $ = id => document.getElementById(id);
 
-  // ── 초기화 ──
   function init() {
-    dom.apiKeyInput   = $('#apiKeyInput');
-    dom.btnSaveKey    = $('#btnSaveKey');
-    dom.regionSelect  = $('#regionSelect');
-    dom.cctvType      = $('#cctvType');
-    dom.btnSearch     = $('#btnSearch');
-    dom.btnReset      = $('#btnReset');
-    dom.btnPrev       = $('#btnPrev');
-    dom.btnNext       = $('#btnNext');
-    dom.pageInfo      = $('#pageInfo');
-    dom.totalCount    = $('#totalCount');
-    dom.cctvList      = $('#cctvList');
-    dom.placeholder   = $('#viewerPlaceholder');
-    dom.streamDetail  = $('#streamDetail');
-    dom.streamBox     = $('#streamBox');
-    dom.streamLabel   = $('#streamLabel');
-    dom.cctvInfoBar   = $('#cctvInfoBar');
-    dom.statusText    = $('#statusText');
-    dom.endpointText  = $('#endpointText');
+    if (state.apiKey) $('apiKeyInput').value = state.apiKey;
 
-    if (state.apiKey) dom.apiKeyInput.value = state.apiKey;
-
-    dom.btnSaveKey.addEventListener('click', saveApiKey);
-    dom.btnSearch.addEventListener('click', () => { state.currentPage = 1; fetchCCTV(); });
-    dom.btnReset.addEventListener('click', resetSearch);
-    dom.btnPrev.addEventListener('click', () => { if (state.currentPage > 1) { state.currentPage--; fetchCCTV(); } });
-    dom.btnNext.addEventListener('click', () => { if (state.currentPage < state.totalPages) { state.currentPage++; fetchCCTV(); } });
+    $('btnSaveKey').onclick = saveKey;
+    $('btnSearch').onclick  = () => { state.page = 1; fetchData(); };
+    $('btnReset').onclick   = reset;
+    $('btnPrev').onclick    = () => { if (state.page > 1) { state.page--; fetchData(); } };
+    $('btnNext').onclick    = () => { if (state.page < state.pages) { state.page++; fetchData(); } };
+    $('searchKeyword').onkeydown = e => { if (e.key === 'Enter') { state.page = 1; fetchData(); } };
   }
 
-  // ── API 키 저장 ──
-  function saveApiKey() {
-    const key = dom.apiKeyInput.value.trim();
-    if (!key) { showToast('API 인증키를 입력해주세요.', 'error'); return; }
-    state.apiKey = key;
-    localStorage.setItem('cctv_api_key', key);
-    showToast('API 인증키가 저장되었습니다.', 'success');
+  function saveKey() {
+    const k = $('apiKeyInput').value.trim();
+    if (!k) { toast('API 인증키를 입력해주세요.', 'error'); return; }
+    state.apiKey = k;
+    state.opPath = null; // 키 변경 시 오퍼레이션 재탐색
+    localStorage.setItem('cctv_key', k);
+    localStorage.removeItem('cctv_op');
+    toast('인증키 저장 완료', 'success');
   }
 
-  // ── CCTV 목록 조회 (ITS API) ──
-  async function fetchCCTV() {
-    if (!state.apiKey) { showToast('먼저 API 인증키를 저장해주세요.', 'error'); return; }
-    if (state.isLoading) return;
-
-    state.isLoading = true;
+  // ── 핵심: API 호출 ──
+  async function fetchData() {
+    if (!state.apiKey) { toast('먼저 API 인증키를 저장해주세요.', 'error'); return; }
+    if (state.loading) return;
+    state.loading = true;
     setStatus('loading');
     renderLoading();
 
-    // 지역 좌표 가져오기
-    const regionKey = dom.regionSelect.value;
-    const region = REGIONS[regionKey];
-
-    // ★ ITS API 필수 파라미터 구성
+    // 공통 파라미터
     const params = new URLSearchParams({
-      apiKey:   state.apiKey,                    // 인증키 (Encoding)
-      type:     CONFIG.DATA_TYPE,                // json
-      cctvType: dom.cctvType.value,              // 1=교통, 2=도로, 3=교통+도로
-      minX:     String(region.minX),             // 최소 경도 (필수)
-      maxX:     String(region.maxX),             // 최대 경도 (필수)
-      minY:     String(region.minY),             // 최소 위도 (필수)
-      maxY:     String(region.maxY),             // 최대 위도 (필수)
-      getType:  'json',                          // 응답 타입
+      serviceKey: state.apiKey,
+      pageNo:     String(state.page),
+      numOfRows:  String(PAGE_SIZE),
+      type:       'json',
     });
 
-    const url = `${CONFIG.BASE_URL}?${params.toString()}`;
-    dom.endpointText.textContent = `요청: ${region.name} (${region.minX}~${region.maxX}, ${region.minY}~${region.maxY})`;
+    // 이미 성공한 오퍼레이션이 있으면 바로 시도
+    if (state.opPath !== null) {
+      const ok = await tryFetch(BASE + state.opPath, params);
+      if (ok) { state.loading = false; return; }
+      // 실패하면 재탐색
+      state.opPath = null;
+    }
+
+    // 오퍼레이션 자동 탐색
+    for (const op of OP_CANDIDATES) {
+      const ok = await tryFetch(BASE + op, params);
+      if (ok) {
+        state.opPath = op;
+        localStorage.setItem('cctv_op', op);
+        state.loading = false;
+        return;
+      }
+    }
+
+    // 모두 실패
+    setStatus('err');
+    renderError(
+      '모든 엔드포인트 시도 실패\n\n' +
+      '확인사항:\n' +
+      '① 인증키가 올바른지 확인 (Encoding 키 사용)\n' +
+      '② 공공데이터포털에서 해당 API 활용 승인 완료 여부\n' +
+      '③ CORS 차단 시 프록시 서버 필요'
+    );
+    toast('API 호출 실패 — 인증키 및 승인 상태를 확인해주세요', 'error');
+    state.loading = false;
+  }
+
+  // 단일 URL 시도 → 성공 true / 실패 false
+  async function tryFetch(url, params) {
+    const fullUrl = `${url}?${params}`;
+    $('endpointText').textContent = url;
 
     try {
-      const response = await fetch(url);
+      const res = await fetch(fullUrl);
+      const text = await res.text();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+      // 404 / 400 등 → 다음 후보로
+      if (!res.ok) {
+        console.warn(`[${res.status}] ${url}`);
+        return false;
       }
 
-      const data = await response.json();
-
-      // ── 응답 파싱 ──
-      // ITS API 응답 구조: { response: { header: {...}, body: {...}, datacount: N, data: [...] } }
-      // 또는: { response: { datacount: N, data: [...] } }
-      // 또는 최상위: { datacount: N, data: [...] }
-
-      let items = [];
-      let totalCnt = 0;
-
-      if (data.response && data.response.data) {
-        items = Array.isArray(data.response.data) ? data.response.data : [data.response.data];
-        totalCnt = parseInt(data.response.datacount || items.length, 10);
-      } else if (data.data) {
-        items = Array.isArray(data.data) ? data.data : [data.data];
-        totalCnt = parseInt(data.datacount || items.length, 10);
-      } else if (Array.isArray(data)) {
-        items = data;
-        totalCnt = items.length;
-      } else {
-        // 에러 응답 체크
-        const errMsg = data.response?.header?.resultMsg
-                    || data.resultMsg
-                    || data.message
-                    || '응답 데이터를 파싱할 수 없습니다.';
-        throw new Error(errMsg);
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        // XML 에러 응답 체크
+        if (text.includes('<returnReasonCode>')) {
+          const code = text.match(/<returnReasonCode>(.*?)<\/returnReasonCode>/)?.[1];
+          const msg  = text.match(/<returnAuthMsg>(.*?)<\/returnAuthMsg>/)?.[1];
+          renderError(`인증 오류 [${code}]: ${msg}`);
+          setStatus('err');
+          toast(`인증 오류: ${msg}`, 'error');
+        }
+        return false;
       }
 
-      // 클라이언트 사이드 페이지네이션 (ITS API는 전체 데이터를 한번에 반환)
-      state.totalCount = totalCnt;
-      state.totalPages = Math.max(1, Math.ceil(totalCnt / CONFIG.PAGE_SIZE));
+      // ── 범용 응답 파서 ──
+      const parsed = parseResponse(json);
+      if (!parsed) return false;
 
-      const startIdx = (state.currentPage - 1) * CONFIG.PAGE_SIZE;
-      const endIdx = startIdx + CONFIG.PAGE_SIZE;
-      state.cctvData = items.slice(startIdx, endIdx);
-      state.allData = items; // 전체 데이터 보관
+      state.data       = parsed.items;
+      state.totalCount = parsed.totalCount;
+      state.pages      = Math.max(1, Math.ceil(parsed.totalCount / PAGE_SIZE));
 
-      renderCCTVList(state.cctvData);
-      updatePagination();
-      setStatus('connected');
-      showToast(`${region.name} 지역 ${totalCnt}건 조회 완료`, 'success');
+      renderList(state.data);
+      updatePaging();
+      setStatus('ok');
+      toast(`${state.totalCount.toLocaleString()}건 조회 (${state.page}/${state.pages})`, 'success');
+      return true;
 
-    } catch (error) {
-      console.error('CCTV API 호출 실패:', error);
-      setStatus('error');
-
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        renderError('CORS 정책으로 직접 호출이 차단되었습니다.\n프록시 서버를 경유하거나\n서버 사이드에서 호출해주세요.');
-        showToast('CORS 오류: 프록시 서버가 필요합니다.', 'error');
-      } else {
-        renderError(error.message);
-        showToast(`조회 실패: ${error.message}`, 'error');
+    } catch (err) {
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        renderError(
+          'CORS 정책으로 브라우저 직접 호출이 차단되었습니다.\n\n' +
+          '해결방법:\n' +
+          '① Node.js / Python 등 백엔드 프록시 서버 경유\n' +
+          '② 개발용 CORS 브라우저 확장 프로그램 사용\n' +
+          '③ 로컬 프록시 (예: cors-anywhere)'
+        );
+        setStatus('err');
+        toast('CORS 오류 — 프록시 서버가 필요합니다', 'error');
       }
-    } finally {
-      state.isLoading = false;
+      return false;
     }
   }
 
-  // ── 페이지 변경 시 (클라이언트 사이드) ──
-  function changePage() {
-    if (!state.allData) return;
-    const startIdx = (state.currentPage - 1) * CONFIG.PAGE_SIZE;
-    const endIdx = startIdx + CONFIG.PAGE_SIZE;
-    state.cctvData = state.allData.slice(startIdx, endIdx);
-    renderCCTVList(state.cctvData);
-    updatePagination();
-  }
+  // ── 범용 응답 파서 (한글/영문 키 모두 대응) ──
+  function parseResponse(json) {
+    let body, header, items, totalCount;
 
-  // ── CCTV 선택 → 스트림 재생 ──
-  function selectCCTV(item, element) {
-    state.selectedCctv = item;
-
-    // 이전 HLS 인스턴스 정리
-    if (state.currentHls) {
-      state.currentHls.destroy();
-      state.currentHls = null;
+    // 패턴 1: { response: { header, body: { items: { item: [...] }, totalCount } } }
+    if (json.response) {
+      header = json.response.header;
+      body   = json.response.body;
     }
-
-    document.querySelectorAll('.cctv-item').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
-
-    dom.placeholder.style.display = 'none';
-    dom.streamDetail.style.display = 'flex';
-
-    // ITS API 응답 필드명
-    // cctvname: CCTV 이름
-    // cctvurl: 스트림 URL
-    // coordx: 경도 (X)
-    // coordy: 위도 (Y)
-    // cctvformat: 영상 포맷
-    // cctvresolution: 해상도
-    const name      = item.cctvname  || '이름 없음';
-    const streamUrl = item.cctvurl   || '';
-    const coordX    = item.coordx    || '';
-    const coordY    = item.coordy    || '';
-    const format    = item.cctvformat || '';
-    const resolution= item.cctvresolution || '';
-
-    dom.streamLabel.textContent = name;
-
-    // 스트림 URL로 영상 로드
-    if (streamUrl) {
-      loadStream(streamUrl, name);
-    } else {
-      dom.streamBox.innerHTML = `
-        <span class="stream-label">${esc(name)}</span>
-        <div style="text-align:center; color:#546e7a;">
-          <svg viewBox="0 0 24 24" style="width:60px;height:60px;fill:#37474f;"><path d="M8 5v14l11-7z"/></svg>
-          <p style="font-size:12px; margin-top:8px;">스트림 URL이 제공되지 않습니다</p>
-        </div>
-      `;
+    // 패턴 2: { 공문: { header, 본문: { 항목: { 항목: [...] }, totalCount } } }
+    else if (json['공문']) {
+      header = json['공문']['header'] || json['공문']['헤더'];
+      body   = json['공문']['본문'] || json['공문']['body'];
     }
-
-    dom.cctvInfoBar.innerHTML = `
-      <span>📍 ${esc(name)}</span>
-      <span>🌐 ${coordY}, ${coordX}</span>
-      ${format ? `<span>🎬 ${esc(format)}</span>` : ''}
-      ${resolution ? `<span>📐 ${esc(resolution)}</span>` : ''}
-      <span>📡 ${streamUrl ? '스트림 가능' : '정보만 제공'}</span>
-    `;
-  }
-
-  // ── 스트림 로드 (HLS / 이미지 / 비디오) ──
-  function loadStream(url, name) {
-    // HLS (m3u8)
-    if (url.includes('.m3u8')) {
-      dom.streamBox.innerHTML = `
-        <span class="stream-label">${esc(name)}</span>
-        <span class="stream-live">● LIVE</span>
-        <video id="hlsVideo" autoplay muted playsinline
-               style="width:100%;height:100%;object-fit:contain;border-radius:8px;"></video>
-      `;
-      const video = document.getElementById('hlsVideo');
-
-      if (window.Hls && Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
-        state.currentHls = hls;
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        hls.on(Hls.Events.ERROR, (_, d) => {
-          if (d.fatal) {
-            console.error('HLS fatal error:', d);
-            showToast('HLS 스트림 재생 실패', 'error');
-          }
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-      } else {
-        showToast('HLS 재생을 위해 hls.js가 필요합니다.', 'info');
-      }
+    // 패턴 3: 최상위에 바로 body 구조
+    else if (json.body || json.items || json.data) {
+      body = json.body || json;
     }
-    // 이미지
-    else if (url.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i)) {
-      dom.streamBox.innerHTML = `
-        <span class="stream-label">${esc(name)}</span>
-        <span class="stream-live">● SNAPSHOT</span>
-        <img src="${esc(url)}" alt="${esc(name)}"
-             onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<p style=\\'color:#e53935;font-size:12px;text-align:center;\\'>이미지 로드 실패</p>')" />
-      `;
-    }
-    // 일반 비디오 또는 기타 URL
     else {
-      dom.streamBox.innerHTML = `
-        <span class="stream-label">${esc(name)}</span>
-        <span class="stream-live">● LIVE</span>
-        <video src="${esc(url)}" autoplay muted playsinline controls
-               style="width:100%;height:100%;object-fit:contain;border-radius:8px;"
-               onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<p style=\\'color:#e53935;font-size:12px;text-align:center;\\'>영상 로드 실패</p>')">
-        </video>
-      `;
+      return null;
     }
+
+    // 헤더 에러 체크
+    if (header) {
+      const code = String(header.resultCode ?? header.code ?? '');
+      if (code !== '00' && code !== '0' && code !== '') {
+        renderError(`API 오류 [${code}]: ${header.resultMsg || header.message || ''}`);
+        setStatus('err');
+        return null;
+      }
+    }
+
+    if (!body) return null;
+
+    // items 추출 (다양한 키 대응)
+    const rawItems = body['항목'] || body.items || body.data || body.item;
+
+    if (rawItems) {
+      // 중첩 구조: { 항목: { 항목: [...] } } 또는 { items: { item: [...] } }
+      const inner = rawItems['항목'] || rawItems.item || rawItems;
+      items = Array.isArray(inner) ? inner : (inner ? [inner] : []);
+    } else {
+      items = [];
+    }
+
+    totalCount = parseInt(
+      body.totalCount || body.totalCnt || body['전체건수'] || items.length, 10
+    );
+
+    return { items, totalCount };
   }
 
-  // ── UI 렌더링 ──
-  function renderCCTVList(items) {
-    if (!items || items.length === 0) {
-      dom.cctvList.innerHTML = `
-        <div class="empty-state">
-          <p>😕 검색 결과가 없습니다</p>
-          <p>다른 지역을 선택해보세요</p>
-        </div>`;
-      dom.totalCount.textContent = '0건';
+  // ── CCTV 선택 ──
+  function selectItem(item, el) {
+    state.selected = item;
+    document.querySelectorAll('.cctv-item').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+
+    $('viewerPlaceholder').style.display = 'none';
+    $('streamDetail').style.display = 'flex';
+
+    const addr = item.LCTN_ROAD_NM_ADDR || item.LCTN_LOTNO_ADDR || '주소 없음';
+    const purpose = item.INSTL_PRPS_SE_NM || '설치목적 미상';
+
+    $('streamBox').innerHTML = `
+      <span class="stream-label">${esc(addr.substring(0, 45))}</span>
+      <div style="text-align:center; padding:24px;">
+        <div style="font-size:52px; margin-bottom:14px;">📷</div>
+        <div style="color:#4fc3f7; font-size:15px; font-weight:700; margin-bottom:6px;">
+          ${esc(purpose)}
+        </div>
+        <div style="color:#90a4ae; font-size:12px;">${esc(addr)}</div>
+        <div style="color:#78909c; font-size:11px; margin-top:10px;">
+          📍 위도 ${item.WGS84_LAT || '-'} &nbsp;·&nbsp; 경도 ${item.WGS84_LOT || '-'}
+        </div>
+        <div style="margin-top:12px;">
+          <a href="https://map.naver.com/p/search/${encodeURIComponent(addr)}"
+             target="_blank" rel="noopener"
+             style="color:#4fc3f7; font-size:11px; text-decoration:underline;">
+            🗺️ 네이버 지도에서 보기
+          </a>
+          &nbsp;&nbsp;
+          <a href="https://www.google.com/maps?q=${item.WGS84_LAT},${item.WGS84_LOT}"
+             target="_blank" rel="noopener"
+             style="color:#4fc3f7; font-size:11px; text-decoration:underline;">
+            🌐 Google Maps
+          </a>
+        </div>
+        <div style="color:#37474f; font-size:10px; margin-top:14px;">
+          ※ 이 API는 CCTV 설치현황 정보를 제공하며, 실시간 영상 URL은 미포함
+        </div>
+      </div>
+    `;
+
+    $('infoCard').innerHTML = [
+      { lbl: '관리번호',     val: item.MNG_NO },
+      { lbl: '관리기관',     val: item.MNG_INST_NM },
+      { lbl: '전화번호',     val: item.MNG_INST_TELNO },
+      { lbl: '설치목적',     val: item.INSTL_PRPS_SE_NM },
+      { lbl: '설치년월',     val: item.INSTL_YM || '-' },
+      { lbl: '카메라 수',    val: item.CAM_CNTOM ? `${item.CAM_CNTOM}대` : '-' },
+      { lbl: '화소수',       val: item.CAM_PIXEL_CNT ? `${item.CAM_PIXEL_CNT}만화소` : '-' },
+      { lbl: '보관일수',     val: item.KPNG_DAY_CNT ?? '-' },
+      { lbl: '촬영각도',     val: item.SHT_ANGLE_INFO || '-' },
+      { lbl: '지번주소',     val: item.LCTN_LOTNO_ADDR || '-' },
+      { lbl: '도로명주소',   val: item.LCTN_ROAD_NM_ADDR || '-' },
+      { lbl: '자치단체코드', val: item.OPN_ATMY_GRP_CD },
+      { lbl: '데이터기준일', val: item.DAT_CRTR_YMD },
+      { lbl: '최종수정일',   val: item.LAST_MDCN_PNT },
+      { lbl: '위도',         val: item.WGS84_LAT },
+      { lbl: '경도',         val: item.WGS84_LOT },
+    ].map(f => `
+      <div class="info-field">
+        <span class="lbl">${f.lbl}</span>
+        <span class="val">${esc(String(f.val ?? '-'))}</span>
+      </div>
+    `).join('');
+  }
+
+  // ── 렌더링 ──
+  function renderList(items) {
+    if (!items.length) {
+      $('cctvList').innerHTML = '<div class="empty-state"><p>😕 결과 없음</p><p>검색 조건을 변경해보세요</p></div>';
+      $('totalCount').textContent = '0건';
       return;
     }
-    dom.totalCount.textContent = `${state.totalCount.toLocaleString()}건`;
+    $('totalCount').textContent = `${state.totalCount.toLocaleString()}건`;
 
-    dom.cctvList.innerHTML = items.map((item, idx) => {
-      const name = item.cctvname || `CCTV #${idx + 1}`;
-      const hasStream = !!item.cctvurl;
+    $('cctvList').innerHTML = items.map((item, i) => {
+      const addr = item.LCTN_ROAD_NM_ADDR || item.LCTN_LOTNO_ADDR || '주소 없음';
+      const purpose = item.INSTL_PRPS_SE_NM || '';
+      const tc = purpose.includes('어린이') ? 'tag-child'
+               : purpose.includes('교통') || purpose.includes('단속') ? 'tag-traffic'
+               : 'tag-etc';
       return `
-        <div class="cctv-item fade-in" style="animation-delay:${idx * 0.03}s" data-index="${idx}">
-          <span class="cctv-name">
-            <span class="cctv-status ${hasStream ? '' : 'offline'}"></span>${esc(name)}
-          </span>
-          <span class="cctv-addr">📌 ${item.coordy || '-'}, ${item.coordx || '-'}</span>
+        <div class="cctv-item fade-in" style="animation-delay:${i*0.025}s" data-idx="${i}">
+          <div class="cctv-name"><span class="dot"></span>${esc(item.MNG_INST_NM || 'CCTV')}</div>
+          <div class="cctv-addr">${esc(addr)}</div>
+          ${purpose ? `<span class="cctv-tag ${tc}">${esc(purpose)}</span>` : ''}
         </div>`;
     }).join('');
 
-    dom.cctvList.querySelectorAll('.cctv-item').forEach(el => {
-      el.addEventListener('click', () => {
-        const idx = parseInt(el.dataset.index, 10);
-        selectCCTV(state.cctvData[idx], el);
-      });
+    $('cctvList').querySelectorAll('.cctv-item').forEach(el => {
+      el.onclick = () => selectItem(state.data[+el.dataset.idx], el);
     });
   }
 
   function renderLoading() {
-    dom.cctvList.innerHTML = `<div class="loading"><div class="spinner"></div><span>CCTV 목록 조회중...</span></div>`;
+    $('cctvList').innerHTML = '<div class="loading"><div class="spinner"></div><span>조회중...</span></div>';
   }
-
   function renderError(msg) {
-    dom.cctvList.innerHTML = `<div class="empty-state"><p>❌ 조회 실패</p><p style="white-space:pre-line;margin-top:4px;">${esc(msg)}</p></div>`;
-    dom.totalCount.textContent = '0건';
+    $('cctvList').innerHTML = `<div class="empty-state"><p>❌ 조회 실패</p><p style="white-space:pre-line;margin-top:6px;font-size:11px;">${esc(msg)}</p></div>`;
+    $('totalCount').textContent = '오류';
   }
-
-  function updatePagination() {
-    dom.pageInfo.textContent = `${state.currentPage} / ${state.totalPages}`;
-    dom.btnPrev.disabled = state.currentPage <= 1;
-    dom.btnNext.disabled = state.currentPage >= state.totalPages;
-
-    // 페이지 변경 시 클라이언트 사이드 슬라이싱
-    dom.btnPrev.onclick = () => { if (state.currentPage > 1) { state.currentPage--; changePage(); } };
-    dom.btnNext.onclick = () => { if (state.currentPage < state.totalPages) { state.currentPage++; changePage(); } };
+  function updatePaging() {
+    $('pageInfo').textContent = `${state.page} / ${state.pages}`;
+    $('btnPrev').disabled = state.page <= 1;
+    $('btnNext').disabled = state.page >= state.pages;
   }
-
   function setStatus(s) {
     const m = {
-      loading:   { dot: 'waiting',      text: 'API 호출중...' },
-      connected: { dot: 'connected',    text: 'API 연결 성공' },
-      error:     { dot: 'disconnected', text: 'API 연결 실패' },
+      loading: { c:'wait', t:'API 호출중...' },
+      ok:      { c:'ok',   t:`연결 성공 · ${state.totalCount.toLocaleString()}건` },
+      err:     { c:'err',  t:'연결 실패' },
     };
-    const v = m[s] || { dot: 'waiting', text: 'API 연결 대기중' };
-    dom.statusText.innerHTML = `<span class="status-dot ${v.dot}"></span>${v.text}`;
+    const v = m[s] || { c:'wait', t:'대기중' };
+    $('statusText').innerHTML = `<span class="status-dot ${v.c}"></span>${v.t}`;
+  }
+  function reset() {
+    $('filterPurpose').value = '';
+    $('searchKeyword').value = '';
+    state.page = 1; state.data = []; state.totalCount = 0; state.pages = 0;
+    $('cctvList').innerHTML = '<div class="empty-state"><p>검색 버튼을 눌러주세요</p></div>';
+    $('totalCount').textContent = '0건';
+    $('pageInfo').textContent = '- / -';
+    $('btnPrev').disabled = $('btnNext').disabled = true;
+    $('viewerPlaceholder').style.display = '';
+    $('streamDetail').style.display = 'none';
+    $('statusText').innerHTML = '<span class="status-dot wait"></span>대기중';
   }
 
-  function resetSearch() {
-    dom.regionSelect.value = 'seoul';
-    dom.cctvType.value = '1';
-    state.currentPage = 1;
-    state.cctvData = [];
-    state.allData = null;
-    state.totalCount = 0;
-    state.totalPages = 0;
-    state.selectedCctv = null;
-    if (state.currentHls) { state.currentHls.destroy(); state.currentHls = null; }
-
-    dom.cctvList.innerHTML = `<div class="empty-state"><p>🔍 지역과 유형을 선택하고</p><p>검색 버튼을 눌러주세요</p></div>`;
-    dom.totalCount.textContent = '0건';
-    dom.pageInfo.textContent = '0 / 0';
-    dom.btnPrev.disabled = true;
-    dom.btnNext.disabled = true;
-    dom.placeholder.style.display = '';
-    dom.streamDetail.style.display = 'none';
-    dom.endpointText.textContent = 'openapi.its.go.kr/cctvInfo';
-    setStatus('disconnected');
-  }
-
-  // ── 유틸 ──
-  function esc(str) {
-    const d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
-
-  function showToast(msg, type = 'info') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast ${type}`;
+  function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+  function toast(msg, type='info') {
+    const t = $('toast'); t.textContent = msg; t.className = `toast ${type}`;
     requestAnimationFrame(() => t.classList.add('show'));
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 4000);
   }
 
-  return { init, showToast };
+  return { init };
 })();
 
-document.addEventListener('DOMContentLoaded', CCTVApp.init);
+document.addEventListener('DOMContentLoaded', App.init);
 </script>
-
-<!-- HLS.js CDN (m3u8 스트림 재생 지원) -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 </body>
 </html>
 
