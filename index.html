@@ -1,0 +1,1434 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 주변 CCTV 뷰어</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background: #16213e;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header .status {
+            font-size: 12px;
+            color: #4ecca3;
+        }
+
+        /* 검색 바 */
+        .search-bar {
+            padding: 15px 20px;
+            background: #16213e;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-bar input:focus {
+            border-color: #4ecca3;
+        }
+
+        /* 카테고리 탭 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #16213e;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #4ecca3;
+            color: #1a1a2e;
+            border-color: #4ecca3;
+            font-weight: bold;
+        }
+
+        /* CCTV 카드 목록 */
+        .cctv-list {
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 80px;
+        }
+
+        .cctv-card {
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .cctv-card:active {
+            transform: scale(0.98);
+        }
+
+        .cctv-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: #0f3460;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cctv-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cctv-thumbnail .play-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(78, 204, 163, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cctv-thumbnail .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .cctv-info {
+            padding: 12px 15px;
+        }
+
+        .cctv-info h3 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .cctv-info .location {
+            font-size: 12px;
+            color: #4ecca3;
+            margin-bottom: 3px;
+        }
+
+        .cctv-info .distance {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 비디오 플레이어 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #fff;
+            background: none;
+            border: none;
+        }
+
+        .modal-video {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .modal-video img,
+        .modal-video video {
+            width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-info {
+            padding: 20px;
+            background: #16213e;
+        }
+
+        .modal-info h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .modal-info p {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #4ecca3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 에러 메시지 */
+        .error-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: #e74c3c;
+        }
+
+        /* API 키 설정 */
+        .api-setup {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .api-setup input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+            margin: 15px 0;
+            outline: none;
+        }
+
+        .api-setup button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: #4ecca3;
+            color: #1a1a2e;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .api-setup p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* 하단 네비게이션 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #16213e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+
+        .nav-item.active {
+            color: #4ecca3;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        /* 설정 페이지 */
+        .settings-page {
+            display: none;
+            padding: 20px;
+        }
+
+        .settings-page.active {
+            display: block;
+        }
+
+        .setting-item {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-item label {
+            font-size: 14px;
+        }
+
+        .setting-item .value {
+            font-size: 13px;
+            color: #4ecca3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>📹 CCTV 뷰어</h1>
+        <div class="status" id="statusText">위치 확인 중...</div>
+    </div>
+
+    <!-- 메인 페이지 -->
+    <div id="mainPage">
+        <!-- 검색 -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 도로명, 지역명으로 검색..." oninput="filterCCTV()">
+        </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="tabs" id="tabsContainer">
+            <div class="tab active" onclick="changeTab(this, 'all')">전체</div>
+            <div class="tab" onclick="changeTab(this, 'highway')">고속도로</div>
+            <div class="tab" onclick="changeTab(this, 'national')">국도</div>
+            <div class="tab" onclick="changeTab(this, 'city')">시내도로</div>
+        </div>
+
+        <!-- CCTV 목록 -->
+        <div class="cctv-list" id="cctvList">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>주변 CCTV를 검색하고 있습니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- API 키 설정 페이지 -->
+    <div class="api-setup" id="apiSetup" style="display:none;">
+        <h2>🔑 API 키 설정</h2>
+        <p style="color:#aaa; margin-top:10px;">
+            ITS 국가교통정보센터에서 발급받은<br>API 키를 입력해주세요.
+        </p>
+        <input type="text" id="apiKeyInput" placeholder="API 키를 붙여넣기 하세요">
+        <button onclick="saveApiKey()">저장하고 시작하기</button>
+        <p>
+            아직 API 키가 없으신가요?<br>
+            <a href="https://www.its.go.kr" style="color:#4ecca3;">its.go.kr</a>에서 무료로 발급받을 수 있습니다.
+        </p>
+    </div>
+
+    <!-- 설정 페이지 -->
+    <div class="settings-page" id="settingsPage">
+        <h2 style="margin-bottom:20px;">⚙️ 설정</h2>
+        <div class="setting-item">
+            <label>API 키</label>
+            <span class="value" id="currentApiKey" onclick="resetApiKey()" style="cursor:pointer;">변경하기</span>
+        </div>
+        <div class="setting-item">
+            <label>검색 반경</label>
+            <span class="value" id="radiusValue">10km</span>
+        </div>
+        <div class="setting-item">
+            <label>자동 새로고침</label>
+            <span class="value">30초</span>
+        </div>
+        <div class="setting-item" onclick="loadCCTVData()" style="cursor:pointer;">
+            <label>🔄 CCTV 목록 새로고침</label>
+            <span class="value">탭하여 실행</span>
+        </div>
+    </div>
+
+    <!-- 비디오 모달 -->
+    <div class="modal" id="videoModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">CCTV</h3>
+            <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-video" id="modalVideo"></div>
+        <div class="modal-info">
+            <h2 id="modalName"></h2>
+            <p id="modalDesc"></p>
+        </div>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('main')">
+            <div class="icon">📹</div>
+            <div>CCTV</div>
+        </div>
+        <div class="nav-item" onclick="showPage('settings')">
+            <div class="icon">⚙️</div>
+            <div>설정</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 전역 변수 =====
+        let API_KEY = localStorage.getItem('its_api_key') || '';
+        let allCCTVData = [];
+        let currentCategory = 'all';
+        let userLat = null;
+        let userLon = null;
+
+        // ===== 초기화 =====
+        window.onload = function() {
+            if (!API_KEY) {
+                showApiSetup();
+            } else {
+                getUserLocation();
+            }
+        };
+
+        // ===== API 키 관리 =====
+        function showApiSetup() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('apiSetup').style.display = 'block';
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                alert('API 키를 입력해주세요.');
+                return;
+            }
+            API_KEY = key;
+            localStorage.setItem('its_api_key', key);
+            document.getElementById('apiSetup').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+            getUserLocation();
+        }
+
+        function resetApiKey() {
+            if (confirm('API 키를 변경하시겠습니까?')) {
+                localStorage.removeItem('its_api_key');
+                API_KEY = '';
+                showApiSetup();
+            }
+        }
+
+        // ===== 위치 정보 =====
+        function getUserLocation() {
+            document.getElementById('statusText').textContent = '위치 확인 중...';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLat = position.coords.latitude;
+                        userLon = position.coords.longitude;
+                        document.getElementById('statusText').textContent = '📍 위치 확인 완료';
+                        loadCCTVData();
+                    },
+                    function(error) {
+                        document.getElementById('statusText').textContent = '⚠️ 위치 권한 필요';
+                        // 기본 위치: 서울 시청
+                        userLat = 37.5665;
+                        userLon = 126.9780;
+                        loadCCTVData();
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                userLat = 37.5665;
+                userLon = 126.9780;
+                loadCCTVData();
+            }
+        }
+
+        // ===== CCTV 데이터 로드 =====
+        async function loadCCTVData() {
+            const listEl = document.getElementById('cctvList');
+            listEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>주변 CCTV를 검색하고 있습니다...</p></div>';
+
+            try {
+                // ITS 국가교통정보센터 CCTV API
+                const apiUrl = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${API_KEY}&type=its&cctvType=1&minX=${userLon - 0.1}&maxX=${userLon + 0.1}&minY=${userLat - 0.1}&maxY=${userLat + 0.1}&getType=json`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.response && data.response.data) {
+                    allCCTVData = data.response.data.map(item => ({
+                        name: item.cctvname || '이름 없음',
+                        url: item.cctvurl || '',
+                        lat: parseFloat(item.coordy),
+                        lon: parseFloat(item.coordx),
+                        road: item.roadsectionid || '',
+                        type: classifyRoad(item.cctvname || ''),
+                        distance: calculateDistance(userLat, userLon, parseFloat(item.coordy), parseFloat(item.coordx))
+                    }));
+
+                    // 거리순 정렬
+                    allCCTVData.sort((a, b) => a.distance - b.distance);
+                    document.getElementById('statusText').textContent = `📹 ${allCCTVData.length}개 CCTV 발견`;
+                    renderCCTVList();
+                } else {
+                    listEl.innerHTML = '<div class="error-msg"><p>⚠️ CCTV 데이터를 불러올 수 없습니다.</p><p style="font-size:12px; margin-top:10px; color:#888;">API 키를 확인해주세요.</p></div>';
+                }
+            } catch (error) {
+                listEl.innerHTML = '<div class="error-msg"><p>⚠️ 네트워크 오류가 발생했습니다.</p><p style="font-size:12px; margin-top:10px; color:#888;">인터넷 연결을 확인해주세요.</p></div>';
+                console.error('Error:', error);
+            }
+        }
+
+        // ===== 도로 분류 =====
+        function classifyRoad(name) {
+            if (name.includes('고속') || name.includes('IC') || name.includes('JC') || name.includes('TG')) return 'highway';
+            if (name.includes('국도') || name.includes('국') || name.match(/\d+호/)) return 'national';
+            return 'city';
+        }
+
+        // ===== 거리 계산 (km) =====
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // ===== CCTV 목록 렌더링 =====
+        function renderCCTVList() {
+            const listEl = document.getElementById('cctvList');
+            let filtered = allCCTVData;
+
+            // 카테고리 필터
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => item.type === currentCategory);
+            }
+
+            // 검색 필터
+            const searchText = document.getElementById('searchInput').value.trim();
+            if (searchText) {
+                filtered = filtered.filter(item =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase())
+                );
+            }
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div class="error-msg"><p>검색 결과가 없습니다.</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map((item, index) => `
+                <div class="cctv-card" onclick="openCCTV(${index})">
+                    <div class="cctv-thumbnail">
+                        <div class="live-badge">● LIVE</div>
+                        <div class="play-btn">▶</div>
+                    </div>
+                    <div class="cctv-info">
+                        <h3>${item.name}</h3>
+                        <div class="location">📍 ${item.type === 'highway' ? '고속도로' : item.type === 'national' ? '국도' : '시내도로'}</div>
+                        <div class="distance">📏 ${item.distance.toFixed(1)}km 거리</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== CCTV 영상 열기 =====
+        function openCCTV(index) {
+            const filtered = getFilteredData();
+            const item = filtered[index];
+            if (!item) return;
+
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalName').textContent = item.name;
+            document.getElementById('modalDesc').textContent =
+                `📍 ${item.type === 'highway' ? '고속도로' : item.type === 'national' ? '국도' : '시내도로'} | 📏 ${item.distance.toFixed(1)}km 거리`;
+
+            const videoContainer = document.getElementById('modalVideo');
+
+            // CCTV URL 형식에 따라 다르게 처리
+            if (item.url.includes('.m3u8')) {
+                videoContainer.innerHTML = `<video autoplay controls playsinline style="width:100%;height:100%;"><source src="${item.url}" type="application/x-mpegURL"></video>`;
+            } else if (item.url.includes('.mp4')) {
+                videoContainer.innerHTML = `<video autoplay controls playsinline style="width:100%;height:100%;"><source src="${item.url}" type="video/mp4"></video>`;
+            } else if (item.url) {
+                // 이미지 스트리밍 (가장 일반적)
+                videoContainer.innerHTML = `<img src="${item.url}" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.innerHTML='<p style=\\'color:#888;\\'>영상을 불러올 수 없습니다.</p>'">`; 
+                // 자동 새로고침 (5초마다)
+                if (window.cctvRefreshInterval) clearInterval(window.cctvRefreshInterval);
+                window.cctvRefreshInterval = setInterval(() => {
+                    const img = videoContainer.querySelector('img');
+                    if (img) img.src = item.url + '&t=' + Date.now();
+                }, 5000);
+            } else {
+                videoContainer.innerHTML = '<p style="color:#888;">영상 URL이 없습니다.</p>';
+            }
+
+            document.getElementById('videoModal').classList.add('active');
+        }
+
+        function getFilteredData() {
+            let filtered = allCCTVData;
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => item.type === currentCategory);
+            }
+            const searchText = document.getElementById('searchInput').value.trim();
+            if (searchText) {
+                filtered = filtered.filter(item =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase())
+                );
+            }
+            return filtered;
+        }
+
+        function closeModal() {
+            document.getElementById('videoModal').classList.remove('active');
+            document.getElementById('modalVideo').innerHTML = '';
+            if (window.cctvRefreshInterval) clearInterval(window.cctvRefreshInterval);
+        }
+
+        // ===== 탭 변경 =====
+        function changeTab(el, category) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            currentCategory = category;
+            renderCCTVList();
+        }
+
+        // ===== 검색 =====
+        function filterCCTV() {
+            renderCCTVList();
+        }
+
+        // ===== 페이지 전환 =====
+        function showPage(page) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            if (page === 'main') {
+                document.getElementById('mainPage').style.display = 'block';
+                document.getElementById('settingsPage').classList.remove('active');
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (page === 'settings') {
+                document.getElementById('mainPage').style.display = 'none';
+                document.getElementById('settingsPage').classList.add('active');
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            }
+        }
+
+        // ===== 30초마다 자동 새로고침 =====
+        setInterval(() => {
+            if (API_KEY && userLat) {
+                loadCCTVData();
+            }
+        }, 30000);
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 주변 CCTV 뷰어</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background: #16213e;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header .status {
+            font-size: 12px;
+            color: #4ecca3;
+        }
+
+        /* 검색 바 */
+        .search-bar {
+            padding: 15px 20px;
+            background: #16213e;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-bar input:focus {
+            border-color: #4ecca3;
+        }
+
+        /* 카테고리 탭 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #16213e;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #4ecca3;
+            color: #1a1a2e;
+            border-color: #4ecca3;
+            font-weight: bold;
+        }
+
+        /* CCTV 카드 목록 */
+        .cctv-list {
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 80px;
+        }
+
+        .cctv-card {
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .cctv-card:active {
+            transform: scale(0.98);
+        }
+
+        .cctv-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: #0f3460;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cctv-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cctv-thumbnail .play-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(78, 204, 163, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cctv-thumbnail .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .cctv-info {
+            padding: 12px 15px;
+        }
+
+        .cctv-info h3 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .cctv-info .location {
+            font-size: 12px;
+            color: #4ecca3;
+            margin-bottom: 3px;
+        }
+
+        .cctv-info .distance {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 비디오 플레이어 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #fff;
+            background: none;
+            border: none;
+        }
+
+        .modal-video {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .modal-video img,
+        .modal-video video {
+            width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-info {
+            padding: 20px;
+            background: #16213e;
+        }
+
+        .modal-info h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .modal-info p {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #4ecca3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 에러 메시지 */
+        .error-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: #e74c3c;
+        }
+
+        /* API 키 설정 */
+        .api-setup {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .api-setup input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+            margin: 15px 0;
+            outline: none;
+        }
+
+        .api-setup button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: #4ecca3;
+            color: #1a1a2e;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .api-setup p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* 하단 네비게이션 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #16213e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+
+        .nav-item.active {
+            color: #4ecca3;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        /* 설정 페이지 */
+        .settings-page {
+            display: none;
+            padding: 20px;
+        }
+
+        .settings-page.active {
+            display: block;
+        }
+
+        .setting-item {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-item label {
+            font-size: 14px;
+        }
+
+        .setting-item .value {
+            font-size: 13px;
+            color: #4ecca3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>📹 CCTV 뷰어</h1>
+        <div class="status" id="statusText">위치 확인 중...</div>
+    </div>
+
+    <!-- 메인 페이지 -->
+    <div id="mainPage">
+        <!-- 검색 -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 도로명, 지역명으로 검색..." oninput="filterCCTV()">
+        </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="tabs" id="tabsContainer">
+            <div class="tab active" onclick="changeTab(this, 'all')">전체</div>
+            <div class="tab" onclick="changeTab(this, 'highway')">고속도로</div>
+            <div class="tab" onclick="changeTab(this, 'national')">국도</div>
+            <div class="tab" onclick="changeTab(this, 'city')">시내도로</div>
+        </div>
+
+        <!-- CCTV 목록 -->
+        <div class="cctv-list" id="cctvList">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>주변 CCTV를 검색하고 있습니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- API 키 설정 페이지 -->
+    <div class="api-setup" id="apiSetup" style="display:none;">
+        <h2>🔑 API 키 설정</h2>
+        <p style="color:#aaa; margin-top:10px;">
+            ITS 국가교통정보센터에서 발급받은<br>API 키를 입력해주세요.
+        </p>
+        <input type="text" id="apiKeyInput" placeholder="API 키를 붙여넣기 하세요">
+        <button onclick="saveApiKey()">저장하고 시작하기</button>
+        <p>
+            아직 API 키가 없으신가요?<br>
+            <a href="https://www.its.go.kr" style="color:#4ecca3;">its.go.kr</a>에서 무료로 발급받을 수 있습니다.
+        </p>
+    </div>
+
+    <!-- 설정 페이지 -->
+    <div class="settings-page" id="settingsPage">
+        <h2 style="margin-bottom:20px;">⚙️ 설정</h2>
+        <div class="setting-item">
+            <label>API 키</label>
+            <span class="value" id="currentApiKey" onclick="resetApiKey()" style="cursor:pointer;">변경하기</span>
+        </div>
+        <div class="setting-item">
+            <label>검색 반경</label>
+            <span class="value" id="radiusValue">10km</span>
+        </div>
+        <div class="setting-item">
+            <label>자동 새로고침</label>
+            <span class="value">30초</span>
+        </div>
+        <div class="setting-item" onclick="loadCCTVData()" style="cursor:pointer;">
+            <label>🔄 CCTV 목록 새로고침</label>
+            <span class="value">탭하여 실행</span>
+        </div>
+    </div>
+
+    <!-- 비디오 모달 -->
+    <div class="modal" id="videoModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">CCTV</h3>
+            <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-video" id="modalVideo"></div>
+        <div class="modal-info">
+            <h2 id="modalName"></h2>
+            <p id="modalDesc"></p>
+        </div>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('main')">
+            <div class="icon">📹</div>
+            <div>CCTV</div>
+        </div>
+        <div class="nav-item" onclick="showPage('settings')">
+            <div class="icon">⚙️</div>
+            <div>설정</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 전역 변수 =====
+        let API_KEY = localStorage.getItem('its_api_key') || '';
+        let allCCTVData = [];
+        let currentCategory = 'all';
+        let userLat = null;
+        let userLon = null;
+
+        // ===== 초기화 =====
+        window.onload = function() {
+            if (!API_KEY) {
+                showApiSetup();
+            } else {
+                getUserLocation();
+            }
+        };
+
+        // ===== API 키 관리 =====
+        function showApiSetup() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('apiSetup').style.display = 'block';
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                alert('API 키를 입력해주세요.');
+                return;
+            }
+            API_KEY = key;
+            localStorage.setItem('its_api_key', key);
+            document.getElementById('apiSetup').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+            getUserLocation();
+        }
+
+        function resetApiKey() {
+            if (confirm('API 키를 변경하시겠습니까?')) {
+                localStorage.removeItem('its_api_key');
+                API_KEY = '';
+                showApiSetup();
+            }
+        }
+
+        // ===== 위치 정보 =====
+        function getUserLocation() {
+            document.getElementById('statusText').textContent = '위치 확인 중...';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLat = position.coords.latitude;
+                        userLon = position.coords.longitude;
+                        document.getElementById('statusText').textContent = '📍 위치 확인 완료';
+                        loadCCTVData();
+                    },
+                    function(error) {
+                        document.getElementById('statusText').textContent = '⚠️ 위치 권한 필요';
+                        // 기본 위치: 서울 시청
+                        userLat = 37.5665;
+                        userLon = 126.9780;
+                        loadCCTVData();
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                userLat = 37.5665;
+                userLon = 126.9780;
+                loadCCTVData();
+            }
+        }
+
+        // ===== CCTV 데이터 로드 =====
+        async function loadCCTVData() {
+            const listEl = document.getElementById('cctvList');
+            listEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>주변 CCTV를 검색하고 있습니다...</p></div>';
+
+            try {
+                // ITS 국가교통정보센터 CCTV API
+                const apiUrl = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${API_KEY}&type=its&cctvType=1&minX=${userLon - 0.1}&maxX=${userLon + 0.1}&minY=${userLat - 0.1}&maxY=${userLat + 0.1}&getType=json`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.response && data.response.data) {
+                    allCCTVData = data.response.data.map(item => ({
+                        name: item.cctvname || '이름 없음',
+                        url: item.cctvurl || '',
+                        lat: parseFloat(item.coordy),
+                        lon: parseFloat(item.coordx),
+                        road: item.roadsectionid || '',
+                        type: classifyRoad(item.cctvname || ''),
+                        distance: calculateDistance(userLat, userLon, parseFloat(item.coordy), parseFloat(item.coordx))
+                    }));
+
+                    // 거리순 정렬
+                    allCCTVData.sort((a, b) => a.distance - b.distance);
+                    document.getElementById('statusText').textContent = `📹 ${allCCTVData.length}개 CCTV 발견`;
+                    renderCCTVList();
+                } else {
+                    listEl.innerHTML = '<div class="error-msg"><p>⚠️ CCTV 데이터를 불러올 수 없습니다.</p><p style="font-size:12px; margin-top:10px; color:#888;">API 키를 확인해주세요.</p></div>';
+                }
+            } catch (error) {
+                listEl.innerHTML = '<div class="error-msg"><p>⚠️ 네트워크 오류가 발생했습니다.</p><p style="font-size:12px; margin-top:10px; color:#888;">인터넷 연결을 확인해주세요.</p></div>';
+                console.error('Error:', error);
+            }
+        }
+
+        // ===== 도로 분류 =====
+        function classifyRoad(name) {
+            if (name.includes('고속') || name.includes('IC') || name.includes('JC') || name.includes('TG')) return 'highway';
+            if (name.includes('국도') || name.includes('국') || name.match(/\d+호/)) return 'national';
+            return 'city';
+        }
+
+        // ===== 거리 계산 (km) =====
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // ===== CCTV 목록 렌더링 =====
+        function renderCCTVList() {
+            const listEl = document.getElementById('cctvList');
+            let filtered = allCCTVData;
+
+            // 카테고리 필터
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => item.type === currentCategory);
+            }
+
+            // 검색 필터
+            const searchText = document.getElementById('searchInput').value.trim();
+            if (searchText) {
+                filtered = filtered.filter(item =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase())
+                );
+            }
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div class="error-msg"><p>검색 결과가 없습니다.</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map((item, index) => `
+                <div class="cctv-card" onclick="openCCTV(${index})">
+                    <div class="cctv-thumbnail">
+                        <div class="live-badge">● LIVE</div>
+                        <div class="play-btn">▶</div>
+                    </div>
+                    <div class="cctv-info">
+                        <h3>${item.name}</h3>
+                        <div class="location">📍 ${item.type === 'highway' ? '고속도로' : item.type === 'national' ? '국도' : '시내도로'}</div>
+                        <div class="distance">📏 ${item.distance.toFixed(1)}km 거리</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== CCTV 영상 열기 =====
+        function openCCTV(index) {
+            const filtered = getFilteredData();
+            const item = filtered[index];
+            if (!item) return;
+
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalName').textContent = item.name;
+            document.getElementById('modalDesc').textContent =
+                `📍 ${item.type === 'highway' ? '고속도로' : item.type === 'national' ? '국도' : '시내도로'} | 📏 ${item.distance.toFixed(1)}km 거리`;
+
+            const videoContainer = document.getElementById('modalVideo');
+
+            // CCTV URL 형식에 따라 다르게 처리
+            if (item.url.includes('.m3u8')) {
+                videoContainer.innerHTML = `<video autoplay controls playsinline style="width:100%;height:100%;"><source src="${item.url}" type="application/x-mpegURL"></video>`;
+            } else if (item.url.includes('.mp4')) {
+                videoContainer.innerHTML = `<video autoplay controls playsinline style="width:100%;height:100%;"><source src="${item.url}" type="video/mp4"></video>`;
+            } else if (item.url) {
+                // 이미지 스트리밍 (가장 일반적)
+                videoContainer.innerHTML = `<img src="${item.url}" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.innerHTML='<p style=\\'color:#888;\\'>영상을 불러올 수 없습니다.</p>'">`; 
+                // 자동 새로고침 (5초마다)
+                if (window.cctvRefreshInterval) clearInterval(window.cctvRefreshInterval);
+                window.cctvRefreshInterval = setInterval(() => {
+                    const img = videoContainer.querySelector('img');
+                    if (img) img.src = item.url + '&t=' + Date.now();
+                }, 5000);
+            } else {
+                videoContainer.innerHTML = '<p style="color:#888;">영상 URL이 없습니다.</p>';
+            }
+
+            document.getElementById('videoModal').classList.add('active');
+        }
+
+        function getFilteredData() {
+            let filtered = allCCTVData;
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(item => item.type === currentCategory);
+            }
+            const searchText = document.getElementById('searchInput').value.trim();
+            if (searchText) {
+                filtered = filtered.filter(item =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase())
+                );
+            }
+            return filtered;
+        }
+
+        function closeModal() {
+            document.getElementById('videoModal').classList.remove('active');
+            document.getElementById('modalVideo').innerHTML = '';
+            if (window.cctvRefreshInterval) clearInterval(window.cctvRefreshInterval);
+        }
+
+        // ===== 탭 변경 =====
+        function changeTab(el, category) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            currentCategory = category;
+            renderCCTVList();
+        }
+
+        // ===== 검색 =====
+        function filterCCTV() {
+            renderCCTVList();
+        }
+
+        // ===== 페이지 전환 =====
+        function showPage(page) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            if (page === 'main') {
+                document.getElementById('mainPage').style.display = 'block';
+                document.getElementById('settingsPage').classList.remove('active');
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (page === 'settings') {
+                document.getElementById('mainPage').style.display = 'none';
+                document.getElementById('settingsPage').classList.add('active');
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            }
+        }
+
+        // ===== 30초마다 자동 새로고침 =====
+        setInterval(() => {
+            if (API_KEY && userLat) {
+                loadCCTVData();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
+
+
+    </script>
+</body>
+</html>
+
