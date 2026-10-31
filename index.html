@@ -202,16 +202,16 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 
 <script>
 // ===== 설정 =====
-var DEFAULT_PROXY = 'https://script.google.com/macros/s/AKfycbzR5JcOtT6XeeWHYgvlygKagS_4E9FFlPBFK412K0ZzOJ-79vV8OdfwNjP5bCNOgLQe/exec';
-var API_BASE = 'https://apis.data.go.kr/1741000/cctv_info';  // ★ 동일
-var API_OPS = ['/info'];  // ★ 수정: 실제 오퍼레이션 '/info'로 변경
+var DEFAULT_PROXY = 'https://script.google.com/macros/s/AKfycbxgrYfB9PqsjoAwUiG_jpKf3ujkdaTznHJM_MBhxL9KK6yIDdgkUgUltVJZZFRHM9Y7/exec';
+var API_BASE = 'https://apis.data.go.kr/1741000/cctv_info';
+var API_OPS = ['/info'];
 var PAGE_SIZE = 20;
 var FETCH_TIMEOUT = 12000;
 
 // ===== 상태 =====
 var apiKey = '';
 var proxyBase = '';
-var currentOp = '/info';  // ★ 수정: 기본값을 '/info'로 설정
+var currentOp = '/info';
 var items = [];
 var gpsItems = [];
 var total = 0;
@@ -324,7 +324,6 @@ function initApp() {
     proxyBase = savedPx;
     byId('proxyIn').value = savedPx;
   }
-  // ★ 수정: 저장된 오퍼레이션 무시, 항상 /info 사용
   currentOp = '/info';
 }
 
@@ -440,14 +439,12 @@ function doPaginate() {
   updatePaging();
 }
 
-// ===== 파라미터 빌드 ===== ★ 수정
+// ===== 파라미터 빌드 =====
 function buildParams(pageNum) {
-  // ★ 수정: serviceKey를 인코딩하지 않고 그대로 전달
-  // (Encoding 키는 이미 인코딩됨, Decoding 키는 프록시에서 처리)
   var p = 'serviceKey=' + apiKey;
   p += '&pageNo=' + (pageNum || pg);
   p += '&numOfRows=' + PAGE_SIZE;
-  p += '&returnType=json';  // ★ 수정: type=json → returnType=json
+  p += '&returnType=json';
   var addr = byId('addrIn').value.trim();
   if (addr) p += '&LCTN_LOTNO_ADDR=' + encodeURIComponent(addr);
   return p;
@@ -480,7 +477,6 @@ function searchNormal() {
   setStatusBar('wait');
   showLoadingUI();
 
-  // ★ 수정: 단일 엔드포인트 /info 직접 호출
   var apiUrl = API_BASE + '/info?' + buildParams();
   proxyFetch(apiUrl).then(function(res) {
     if (!res) {
@@ -503,7 +499,6 @@ function searchNormal() {
         return;
       }
 
-      // ★ 수정: 에러 응답 감지 개선
       if (j.OpenAPI_ServiceResponse) {
         var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
         var errMsg = errHdr.returnAuthMsg || errHdr.errMsg || 'API 오류';
@@ -560,7 +555,6 @@ function searchGPS() {
 
   function loadNext() {
     if (pageNum > 10) return finishGPS(allData);
-    // ★ 수정: 단일 엔드포인트 /info 직접 호출
     var apiUrl = API_BASE + '/info?' + buildParams(pageNum);
     return proxyFetch(apiUrl).then(function(res) {
       if (!res) {
@@ -580,7 +574,6 @@ function searchGPS() {
           return finishGPS(allData);
         }
 
-        // ★ 수정: 에러 응답 감지
         if (j.OpenAPI_ServiceResponse) {
           var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
           var errMsg = errHdr.returnAuthMsg || 'API 오류';
@@ -650,7 +643,6 @@ function parseApiResponse(j) {
   } else if (j.body || j.items || j.item) {
     body = j.body || j;
   } else {
-    // ★ 수정: 최상위에 바로 데이터가 있는 경우도 처리
     return null;
   }
 
