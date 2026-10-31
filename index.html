@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CCTV 뷰어</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -19,7 +20,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 .btn-s.on{border-color:#4fc3f7;color:#4fc3f7;background:rgba(79,195,247,.1)}
 
 .set{max-height:0;overflow:hidden;transition:max-height .4s ease;background:#162029;flex-shrink:0}
-.set.open{max-height:600px;overflow-y:auto;border-bottom:1px solid #2a3a4a}
+.set.open{max-height:700px;overflow-y:auto;border-bottom:1px solid #2a3a4a}
 .set-in{padding:18px;display:flex;flex-direction:column;gap:16px}
 .sl{font-size:18px;color:#90a4ae;font-weight:700;margin-bottom:8px;display:block}
 .si{width:100%;background:#0f1923;border:2px solid #37474f;border-radius:10px;padding:18px;color:#e0e0e0;font-size:19px;outline:none}
@@ -84,6 +85,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 .tag-trf{background:#0d47a1;color:#90caf9}
 .tag-sec{background:#4a148c;color:#ce93d8}
 .tag-etc{background:#37474f;color:#b0bec5}
+.tag-its{background:#e65100;color:#ffcc80}
 
 .ld{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:#546e7a;font-size:20px;gap:18px}
 .spinner{width:50px;height:50px;border:4px solid #2a3a4a;border-top-color:#4fc3f7;border-radius:50%;animation:spin .8s linear infinite}
@@ -109,6 +111,35 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 .ifield-l{font-size:16px;color:#546e7a;font-weight:700;margin-bottom:5px}
 .ifield-v{font-size:18px;color:#e0e0e0;word-break:break-all;line-height:1.4}
 
+/* ===== 영상 플레이어 스타일 ===== */
+.video-section{background:#000;border-radius:14px;border:1px solid #2a3a4a;overflow:hidden}
+.video-header{background:#1a2733;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.video-title{font-size:18px;font-weight:700;color:#4fc3f7}
+.video-live{display:flex;align-items:center;gap:6px;font-size:15px;color:#e53935;font-weight:700}
+.video-live-dot{width:10px;height:10px;background:#e53935;border-radius:50%;animation:blink 1s infinite}
+.video-container{position:relative;width:100%;padding-top:56.25%;background:#000}
+.video-container video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000}
+.video-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#546e7a;gap:12px;font-size:18px}
+.video-placeholder .vp-icon{font-size:56px}
+.video-controls{background:#1a2733;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vc-btn{background:#37474f;color:#e0e0e0;border:none;border-radius:8px;padding:12px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.vc-btn:active{background:#455a64}
+.vc-btn-live{background:#e53935;color:#fff}
+.vc-btn-live:active{background:#c62828}
+.vc-status{font-size:15px;color:#90a4ae;flex:1;text-align:center}
+
+.nearby-cctv{background:#162029;border-radius:12px;border:1px solid #2a3a4a;padding:18px}
+.nearby-title{font-size:18px;font-weight:700;color:#ff9800;margin-bottom:14px}
+.nearby-item{background:#0f1923;border:1px solid #2a3a4a;border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.nearby-item:active{background:#1a3a4a}
+.nearby-item:last-child{margin-bottom:0}
+.ni-icon{font-size:28px;flex-shrink:0}
+.ni-info{flex:1;min-width:0}
+.ni-name{font-size:17px;font-weight:700;color:#e0e0e0;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ni-dist{font-size:15px;color:#ff9800}
+.ni-play{background:#e53935;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer;flex-shrink:0}
+.ni-play:active{background:#c62828}
+
 .toast{position:fixed;bottom:24px;left:16px;right:16px;padding:20px 22px;border-radius:12px;font-size:19px;font-weight:700;z-index:9999;transform:translateY(150%);transition:transform .3s ease;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .toast-show{transform:translateY(0)}
 .toast-ok{background:#1b5e20;color:#a5d6a7;border:1px solid #2e7d32}
@@ -130,7 +161,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 <div class="hdr">
   <div class="hdr-l">
     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-    <div><div class="ht">CCTV 뷰어</div><div class="hs">행정안전부 공공데이터 API</div></div>
+    <div><div class="ht">CCTV 뷰어</div><div class="hs">행정안전부 + ITS 실시간 영상</div></div>
   </div>
   <button class="btn-s" id="btnSet" onclick="toggleSet()">⚙️</button>
 </div>
@@ -138,10 +169,16 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 <div class="set" id="setP">
   <div class="set-in">
     <div>
-      <span class="sl">🔑 API 인증키</span>
-      <input type="password" class="si" id="keyIn" placeholder="공공데이터포털 인증키 (Encoding 또는 Decoding)"/>
+      <span class="sl">🔑 행정안전부 API 인증키</span>
+      <input type="password" class="si" id="keyIn" placeholder="공공데이터포털 인증키 (CCTV 설치정보)"/>
       <button class="bf" onclick="saveKey()">인증키 저장</button>
       <div id="kd" class="kd kd-no">● 인증키 미설정</div>
+    </div>
+    <div>
+      <span class="sl">🎥 ITS CCTV 영상 API 인증키</span>
+      <input type="password" class="si" id="itsKeyIn" placeholder="ITS 국가교통정보센터 인증키"/>
+      <button class="bf" onclick="saveItsKey()">ITS 인증키 저장</button>
+      <div id="itsKd" class="kd kd-no">● ITS 인증키 미설정</div>
     </div>
     <div>
       <span class="sl">🌐 프록시 URL (기본 내장됨)</span>
@@ -165,7 +202,11 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
       <option value="재난재해">🌊 재난재해</option>
       <option value="주정차단속">🅿️ 주정차단속</option>
     </select>
-    <button class="brst" onclick="doReset()">초기화</button>
+    <select class="sf" id="srcSel" style="flex:1">
+      <option value="mois">📋 행정안전부 (설치정보)</option>
+      <option value="its">🎥 ITS (실시간 영상)</option>
+      <option value="both">📋+🎥 통합 검색</option>
+    </select>
   </div>
   <div class="gb" id="gpsBox" onclick="gpsClick(event)">
     <label class="tw" onclick="event.stopPropagation()"><input type="checkbox" id="gpsChk" onchange="toggleGPS()"/><span class="tsl"></span></label>
@@ -188,11 +229,21 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 <div class="tabs">
   <div id="tabList" class="tab tab-on" onclick="showTab('list')">📋 목록</div>
   <div id="tabDetail" class="tab" onclick="showTab('detail')">📷 상세</div>
+  <div id="tabVideo" class="tab" onclick="showTab('video')">🎥 영상</div>
 </div>
 
 <div class="panels">
-  <div id="listPanel" class="pnl pnl-on"><div id="lw"><div class="empty"><div style="font-size:60px">🔍</div><div>주소를 입력하거나<br>📍 내 위치를 켜고 검색하세요</div></div></div></div>
-  <div id="detailPanel" class="pnl"><div id="dw"><div class="empty"><div style="font-size:60px">📷</div><div>목록에서 CCTV를 선택하세요</div></div></div></div>
+  <div id="listPanel" class="pnl pnl-on">
+    <div id="lw"><div class="empty"><div style="font-size:60px">🔍</div><div>주소를 입력하거나<br>📍 내 위치를 켜고 검색하세요</div></div></div>
+  </div>
+  <div id="detailPanel" class="pnl">
+    <div id="dw"><div class="empty"><div style="font-size:60px">📷</div><div>목록에서 CCTV를 선택하세요</div></div></div>
+  </div>
+  <div id="videoPanel" class="pnl">
+    <div id="vw">
+      <div class="empty"><div style="font-size:60px">🎥</div><div>ITS CCTV를 선택하면<br>실시간 영상을 볼 수 있습니다</div><div style="font-size:16px;color:#546e7a;margin-top:8px">※ ITS 인증키 필요 (설정에서 입력)</div></div>
+    </div>
+  </div>
 </div>
 
 <div class="stbar">
@@ -204,15 +255,16 @@ body{font-family:-apple-system,system-ui,sans-serif;background:#0f1923;color:#e0
 // ===== 설정 =====
 var DEFAULT_PROXY = 'https://script.google.com/macros/s/AKfycbwjGtN8RwhdNWZui22LDfur43I6gkJWA7irO5LxQjKS2ZOJ2keatVT7TwGhyArmDzts/exec';
 var API_BASE = 'https://apis.data.go.kr/1741000/cctv_info';
-var API_OPS = ['/info'];
+var ITS_API_BASE = 'https://openapi.its.go.kr:9443/cctvInfo';
 var PAGE_SIZE = 20;
 var FETCH_TIMEOUT = 12000;
 
 // ===== 상태 =====
 var apiKey = '';
+var itsApiKey = '';
 var proxyBase = '';
-var currentOp = '/info';
 var items = [];
+var itsItems = [];
 var gpsItems = [];
 var total = 0;
 var pg = 1;
@@ -223,28 +275,15 @@ var myLat = null;
 var myLon = null;
 var myRad = 5;
 var logs = [];
+var currentHls = null;
+var currentVideoItem = null;
 
 // ===== 유틸 =====
 function byId(id) { return document.getElementById(id); }
-
-function safeStr(v) {
-  if (v === null || v === undefined) return '-';
-  return String(v);
-}
-
-function escHtml(s) {
-  var d = document.createElement('div');
-  d.textContent = s || '';
-  return d.innerHTML;
-}
-
-function lsGet(k) {
-  try { return localStorage.getItem(k); } catch(e) { return null; }
-}
-
-function lsSet(k, v) {
-  try { localStorage.setItem(k, v); } catch(e) {}
-}
+function safeStr(v) { return (v === null || v === undefined) ? '-' : String(v); }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function lsGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
 
 function showToast(msg, type) {
   var el = byId('toast');
@@ -252,118 +291,86 @@ function showToast(msg, type) {
   el.className = 'toast toast-' + (type || 'info');
   setTimeout(function() { el.className += ' toast-show'; }, 10);
   clearTimeout(el.tmr);
-  el.tmr = setTimeout(function() {
-    el.className = el.className.replace(' toast-show', '');
-  }, 4500);
+  el.tmr = setTimeout(function() { el.className = el.className.replace(' toast-show', ''); }, 4500);
 }
 
 function havDist(lat1, lon1, lat2, lon2) {
-  var R = 6371000;
-  var rad = Math.PI / 180;
-  var dLat = (lat2 - lat1) * rad;
-  var dLon = (lon2 - lon1) * rad;
-  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(lat1*rad) * Math.cos(lat2*rad) *
-          Math.sin(dLon/2) * Math.sin(dLon/2);
+  var R = 6371000, rad = Math.PI / 180;
+  var dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)*Math.sin(dLon/2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function fmtDist(m) {
-  if (m >= 1000) return (m/1000).toFixed(1) + 'km';
-  return Math.round(m) + 'm';
-}
+function fmtDist(m) { return (m >= 1000) ? (m/1000).toFixed(1) + 'km' : Math.round(m) + 'm'; }
 
-// ===== fetch with timeout =====
 function fetchWithTimeout(url, ms) {
   return new Promise(function(resolve, reject) {
     var done = false;
-    var timer = setTimeout(function() {
-      if (!done) { done = true; reject(new Error('timeout')); }
-    }, ms || FETCH_TIMEOUT);
-    fetch(url).then(function(r) {
-      if (!done) { done = true; clearTimeout(timer); resolve(r); }
-    }).catch(function(e) {
-      if (!done) { done = true; clearTimeout(timer); reject(e); }
-    });
+    var timer = setTimeout(function() { if (!done) { done = true; reject(new Error('timeout')); } }, ms || FETCH_TIMEOUT);
+    fetch(url).then(function(r) { if (!done) { done = true; clearTimeout(timer); resolve(r); } })
+    .catch(function(e) { if (!done) { done = true; clearTimeout(timer); reject(e); } });
   });
 }
 
-// ===== 프록시 경유 fetch =====
 function proxyFetch(apiUrl) {
   var base = proxyBase || DEFAULT_PROXY;
   var sep = (base.indexOf('?') >= 0) ? '&' : '?';
   var fullUrl = base + sep + 'url=' + encodeURIComponent(apiUrl);
-
   byId('epT').textContent = '🔄 프록시 호출중...';
-
   return fetchWithTimeout(fullUrl).then(function(r) {
-    if (r.ok) {
-      byId('epT').textContent = '✅ 프록시 연결 성공';
-      return r;
-    }
-    logs.push('프록시: HTTP ' + r.status);
-    return null;
+    if (r.ok) { byId('epT').textContent = '✅ 프록시 연결 성공'; return r; }
+    logs.push('프록시: HTTP ' + r.status); return null;
   }).catch(function(e) {
     var msg = (e.message === 'timeout') ? '타임아웃(12초)' : e.message;
-    logs.push('프록시: ' + msg);
-    byId('epT').textContent = '❌ ' + msg;
-    return null;
+    logs.push('프록시: ' + msg); byId('epT').textContent = '❌ ' + msg; return null;
   });
 }
 
 // ===== 초기화 =====
 function initApp() {
   var savedKey = lsGet('cctv_key');
-  if (savedKey) {
-    apiKey = savedKey;
-    byId('keyIn').value = savedKey;
-    setKeyStatus(true);
-  }
+  if (savedKey) { apiKey = savedKey; byId('keyIn').value = savedKey; setKeyStatus(true); }
+  var savedItsKey = lsGet('its_key');
+  if (savedItsKey) { itsApiKey = savedItsKey; byId('itsKeyIn').value = savedItsKey; setItsKeyStatus(true); }
   var savedPx = lsGet('cctv_proxy');
-  if (savedPx) {
-    proxyBase = savedPx;
-    byId('proxyIn').value = savedPx;
-  }
-  currentOp = '/info';
+  if (savedPx) { proxyBase = savedPx; byId('proxyIn').value = savedPx; }
 }
 
-function toggleSet() {
-  byId('setP').classList.toggle('open');
-  byId('btnSet').classList.toggle('on');
-}
+function toggleSet() { byId('setP').classList.toggle('open'); byId('btnSet').classList.toggle('on'); }
 
 function saveKey() {
   var k = byId('keyIn').value.trim();
   if (!k) { showToast('인증키를 입력해주세요', 'err'); return; }
-  apiKey = k;
-  lsSet('cctv_key', k);
-  setKeyStatus(true);
-  showToast('✅ 인증키 저장 완료', 'ok');
+  apiKey = k; lsSet('cctv_key', k); setKeyStatus(true); showToast('✅ 행정안전부 인증키 저장 완료', 'ok');
+}
+
+function saveItsKey() {
+  var k = byId('itsKeyIn').value.trim();
+  if (!k) { showToast('ITS 인증키를 입력해주세요', 'err'); return; }
+  itsApiKey = k; lsSet('its_key', k); setItsKeyStatus(true); showToast('✅ ITS 인증키 저장 완료', 'ok');
 }
 
 function savePx() {
-  proxyBase = byId('proxyIn').value.trim();
-  lsSet('cctv_proxy', proxyBase);
+  proxyBase = byId('proxyIn').value.trim(); lsSet('cctv_proxy', proxyBase);
   showToast(proxyBase ? '✅ 프록시 변경 완료' : '기본 프록시로 복원', 'ok');
 }
 
 function setKeyStatus(ok) {
   var el = byId('kd');
-  if (ok) {
-    el.textContent = '✅ 인증키 설정됨';
-    el.className = 'kd kd-ok';
-  } else {
-    el.textContent = '● 인증키 미설정';
-    el.className = 'kd kd-no';
-  }
+  el.textContent = ok ? '✅ 인증키 설정됨' : '● 인증키 미설정';
+  el.className = ok ? 'kd kd-ok' : 'kd kd-no';
+}
+
+function setItsKeyStatus(ok) {
+  var el = byId('itsKd');
+  el.textContent = ok ? '✅ ITS 인증키 설정됨' : '● ITS 인증키 미설정';
+  el.className = ok ? 'kd kd-ok' : 'kd kd-no';
 }
 
 // ===== GPS =====
 function gpsClick(e) {
   var tag = e.target.tagName;
-  if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'OPTION') {
-    byId('gpsChk').click();
-  }
+  if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'OPTION') byId('gpsChk').click();
 }
 
 function toggleGPS() {
@@ -371,39 +378,24 @@ function toggleGPS() {
   byId('radSel').disabled = !gpsOn;
   byId('gpsT').className = gpsOn ? 'gt gt-on' : 'gt';
   byId('gpsBox').className = gpsOn ? 'gb gb-on' : 'gb';
-  if (gpsOn) {
-    if (myLat) { showGpsCoord(); }
-    else { getGpsLocation(); }
-  } else {
-    byId('gpsSt').textContent = 'OFF';
-    byId('gpsSt').className = 'gs';
-  }
+  if (gpsOn) { if (myLat) showGpsCoord(); else getGpsLocation(); }
+  else { byId('gpsSt').textContent = 'OFF'; byId('gpsSt').className = 'gs'; }
 }
 
 function getGpsLocation() {
   if (!navigator.geolocation) { gpsFail('GPS 미지원'); return; }
-  byId('gpsSt').textContent = '위치 확인중...';
-  byId('gpsSt').className = 'gs gs-find';
+  byId('gpsSt').textContent = '위치 확인중...'; byId('gpsSt').className = 'gs gs-find';
   navigator.geolocation.getCurrentPosition(
-    function(p) {
-      myLat = p.coords.latitude;
-      myLon = p.coords.longitude;
-      showGpsCoord();
-      showToast('📍 위치 확인됨', 'ok');
-    },
+    function(p) { myLat = p.coords.latitude; myLon = p.coords.longitude; showGpsCoord(); showToast('📍 위치 확인됨', 'ok'); },
     function() { gpsFail('위치 확인 실패'); },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 
 function gpsFail(msg) {
-  byId('gpsSt').textContent = msg;
-  byId('gpsSt').className = 'gs gs-fail';
-  byId('gpsChk').checked = false;
-  gpsOn = false;
-  byId('radSel').disabled = true;
-  byId('gpsBox').className = 'gb';
-  showToast(msg, 'err');
+  byId('gpsSt').textContent = msg; byId('gpsSt').className = 'gs gs-fail';
+  byId('gpsChk').checked = false; gpsOn = false; byId('radSel').disabled = true;
+  byId('gpsBox').className = 'gb'; showToast(msg, 'err');
 }
 
 function showGpsCoord() {
@@ -415,8 +407,10 @@ function showGpsCoord() {
 function showTab(name) {
   byId('tabList').className = (name === 'list') ? 'tab tab-on' : 'tab';
   byId('tabDetail').className = (name === 'detail') ? 'tab tab-on' : 'tab';
+  byId('tabVideo').className = (name === 'video') ? 'tab tab-on' : 'tab';
   byId('listPanel').className = (name === 'list') ? 'pnl pnl-on' : 'pnl';
   byId('detailPanel').className = (name === 'detail') ? 'pnl pnl-on' : 'pnl';
+  byId('videoPanel').className = (name === 'video') ? 'pnl pnl-on' : 'pnl';
 }
 
 // ===== 페이지 =====
@@ -424,8 +418,7 @@ function prevPage() { if (pg > 1) { pg--; doPaginate(); } }
 function nextPage() { if (pg < pgMax) { pg++; doPaginate(); } }
 function updatePaging() {
   byId('pgI').textContent = pg + ' / ' + pgMax;
-  byId('btnP').disabled = (pg <= 1);
-  byId('btnN').disabled = (pg >= pgMax);
+  byId('btnP').disabled = (pg <= 1); byId('btnN').disabled = (pg >= pgMax);
 }
 
 function doPaginate() {
@@ -433,172 +426,201 @@ function doPaginate() {
     var start = (pg - 1) * PAGE_SIZE;
     items = gpsItems.slice(start, start + PAGE_SIZE);
     renderList(items, true);
-  } else {
-    renderList(items, false);
-  }
+  } else { renderList(items, false); }
   updatePaging();
 }
 
-// ===== 파라미터 빌드 =====
+// ===== 행정안전부 API 파라미터 =====
 function buildParams(pageNum) {
-  var p = 'serviceKey=' + apiKey;
-  p += '&pageNo=' + (pageNum || pg);
-  p += '&numOfRows=' + PAGE_SIZE;
-  p += '&returnType=json';
+  var p = 'serviceKey=' + apiKey + '&pageNo=' + (pageNum || pg) + '&numOfRows=' + PAGE_SIZE + '&returnType=json';
   var addr = byId('addrIn').value.trim();
   if (addr) p += '&LCTN_LOTNO_ADDR=' + encodeURIComponent(addr);
   return p;
 }
 
+// ===== ITS API 호출 =====
+function searchITS() {
+  if (!itsApiKey) {
+    showToast('⚙️ ITS 인증키를 먼저 설정해주세요', 'err');
+    byId('setP').classList.add('open'); byId('btnSet').classList.add('on'); return;
+  }
+  if (!gpsOn || !myLat) {
+    showToast('📍 ITS 검색은 위치 기반이 필요합니다', 'info'); return;
+  }
+  busy = true; logs = []; setStatusBar('wait'); showLoadingUI();
+
+  var rad = Number(byId('radSel').value);
+  var minX = myLon - (rad * 0.012);
+  var maxX = myLon + (rad * 0.012);
+  var minY = myLat - (rad * 0.009);
+  var maxY = myLat + (rad * 0.009);
+
+  var itsUrl = ITS_API_BASE + '?apiKey=' + itsApiKey
+    + '&type=its&cctvType=1'
+    + '&minX=' + minX.toFixed(6) + '&maxX=' + maxX.toFixed(6)
+    + '&minY=' + minY.toFixed(6) + '&maxY=' + maxY.toFixed(6)
+    + '&getType=json';
+
+  proxyFetch(itsUrl).then(function(res) {
+    if (!res) {
+      setStatusBar('err'); showErrorUI('ITS API 호출 실패');
+      busy = false; byId('btnGo').disabled = false; return;
+    }
+    return res.text().then(function(txt) {
+      var j;
+      try { j = JSON.parse(txt); } catch(e) {
+        logs.push('ITS JSON 파싱 실패'); setStatusBar('err');
+        showErrorUI('ITS 응답 파싱 실패'); busy = false; byId('btnGo').disabled = false; return;
+      }
+
+      var data = j.response && j.response.data ? j.response.data : (j.data || []);
+      if (!Array.isArray(data)) data = [];
+
+      // 거리 계산 및 정렬
+      itsItems = [];
+      for (var i = 0; i < data.length; i++) {
+        var it = data[i];
+        var la = parseFloat(it.coordy);
+        var lo = parseFloat(it.coordx);
+        if (isNaN(la) || isNaN(lo)) continue;
+        it._dist = havDist(myLat, myLon, la, lo);
+        it._isITS = true;
+        itsItems.push(it);
+      }
+      itsItems.sort(function(a, b) { return a._dist - b._dist; });
+
+      items = itsItems;
+      total = itsItems.length;
+      pgMax = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      pg = 1;
+      renderList(items.slice(0, PAGE_SIZE), true);
+      updatePaging();
+      setStatusBar('ok');
+      showToast('🎥 ITS CCTV ' + total + '건 조회', 'ok');
+      busy = false; byId('btnGo').disabled = false;
+    });
+  }).catch(function(e) {
+    logs.push('ITS 호출 오류: ' + e.message);
+    setStatusBar('err'); showErrorUI('ITS API 호출 실패');
+    busy = false; byId('btnGo').disabled = false;
+  });
+}
+
 // ===== 검색 =====
 function startSearch() {
-  if (!apiKey) {
-    showToast('⚙️ 인증키를 먼저 설정해주세요', 'err');
-    byId('setP').classList.add('open');
-    byId('btnSet').classList.add('on');
-    return;
-  }
+  var src = byId('srcSel').value;
   myRad = Number(byId('radSel').value);
   pg = 1;
   byId('btnGo').disabled = true;
+
+  if (src === 'its') {
+    searchITS(); return;
+  }
+
+  if (!apiKey) {
+    showToast('⚙️ 인증키를 먼저 설정해주세요', 'err');
+    byId('setP').classList.add('open'); byId('btnSet').classList.add('on');
+    byId('btnGo').disabled = false; return;
+  }
+
   if (gpsOn) {
     if (!myLat) { showToast('위치 확인 중...', 'info'); byId('btnGo').disabled = false; return; }
     searchGPS();
   } else {
     searchNormal();
   }
+
+  // 통합 검색 시 ITS도 병렬 호출
+  if (src === 'both' && itsApiKey && gpsOn && myLat) {
+    searchITSBackground();
+  }
+}
+
+function searchITSBackground() {
+  var rad = Number(byId('radSel').value);
+  var minX = myLon - (rad * 0.012), maxX = myLon + (rad * 0.012);
+  var minY = myLat - (rad * 0.009), maxY = myLat + (rad * 0.009);
+  var itsUrl = ITS_API_BASE + '?apiKey=' + itsApiKey
+    + '&type=its&cctvType=1'
+    + '&minX=' + minX.toFixed(6) + '&maxX=' + maxX.toFixed(6)
+    + '&minY=' + minY.toFixed(6) + '&maxY=' + maxY.toFixed(6)
+    + '&getType=json';
+
+  proxyFetch(itsUrl).then(function(res) {
+    if (!res) return;
+    return res.text().then(function(txt) {
+      var j;
+      try { j = JSON.parse(txt); } catch(e) { return; }
+      var data = j.response && j.response.data ? j.response.data : (j.data || []);
+      if (!Array.isArray(data)) return;
+      itsItems = [];
+      for (var i = 0; i < data.length; i++) {
+        var it = data[i];
+        var la = parseFloat(it.coordy), lo = parseFloat(it.coordx);
+        if (isNaN(la) || isNaN(lo)) continue;
+        it._dist = havDist(myLat, myLon, la, lo);
+        it._isITS = true;
+        itsItems.push(it);
+      }
+      if (itsItems.length) showToast('🎥 주변 ITS CCTV ' + itsItems.length + '건 발견', 'info');
+    });
+  }).catch(function() {});
 }
 
 function searchNormal() {
   if (busy) return;
-  busy = true;
-  gpsItems = [];
-  logs = [];
-  setStatusBar('wait');
-  showLoadingUI();
-
+  busy = true; gpsItems = []; logs = []; setStatusBar('wait'); showLoadingUI();
   var apiUrl = API_BASE + '/info?' + buildParams();
   proxyFetch(apiUrl).then(function(res) {
-    if (!res) {
-      setStatusBar('err');
-      showErrorUI();
-      showToast('❌ API 호출 실패', 'err');
-      busy = false;
-      byId('btnGo').disabled = false;
-      return;
-    }
+    if (!res) { setStatusBar('err'); showErrorUI(); showToast('❌ API 호출 실패', 'err'); busy = false; byId('btnGo').disabled = false; return; }
     return res.text().then(function(txt) {
       var j;
       try { j = JSON.parse(txt); } catch(e) {
-        logs.push('JSON 파싱 실패: ' + txt.substring(0, 200));
-        setStatusBar('err');
-        showErrorUI('응답 파싱 실패');
-        showToast('❌ 응답 파싱 실패', 'err');
-        busy = false;
-        byId('btnGo').disabled = false;
-        return;
+        logs.push('JSON 파싱 실패'); setStatusBar('err'); showErrorUI('응답 파싱 실패');
+        busy = false; byId('btnGo').disabled = false; return;
       }
-
       if (j.OpenAPI_ServiceResponse) {
         var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
         var errMsg = errHdr.returnAuthMsg || errHdr.errMsg || 'API 오류';
-        var errCode = errHdr.returnReasonCode || '';
-        logs.push('API 오류 [코드:' + errCode + '] ' + errMsg);
-        setStatusBar('err');
-        showErrorUI('API 오류: ' + errMsg + ' (코드:' + errCode + ')');
-        showToast('❌ ' + errMsg, 'err');
-        busy = false;
-        byId('btnGo').disabled = false;
-        return;
+        logs.push('API 오류: ' + errMsg); setStatusBar('err'); showErrorUI('API 오류: ' + errMsg);
+        busy = false; byId('btnGo').disabled = false; return;
       }
-
       var parsed = parseApiResponse(j);
-      if (!parsed) {
-        logs.push('응답 구조 인식 실패');
-        setStatusBar('err');
-        showErrorUI('응답 데이터 구조를 인식할 수 없습니다');
-        busy = false;
-        byId('btnGo').disabled = false;
-        return;
-      }
-
-      items = parsed.items;
-      total = parsed.totalCount;
+      if (!parsed) { setStatusBar('err'); showErrorUI('응답 구조 인식 실패'); busy = false; byId('btnGo').disabled = false; return; }
+      items = parsed.items; total = parsed.totalCount;
       pgMax = Math.max(1, Math.ceil(total / PAGE_SIZE));
-      filterResults();
-      renderList(items, false);
-      updatePaging();
-      setStatusBar('ok');
-      showToast('✅ ' + total.toLocaleString() + '건 조회', 'ok');
-      busy = false;
-      byId('btnGo').disabled = false;
+      filterResults(); renderList(items, false); updatePaging();
+      setStatusBar('ok'); showToast('✅ ' + total.toLocaleString() + '건 조회', 'ok');
+      busy = false; byId('btnGo').disabled = false;
     });
   }).catch(function(e) {
-    logs.push('호출 오류: ' + e.message);
-    setStatusBar('err');
-    showErrorUI();
-    busy = false;
-    byId('btnGo').disabled = false;
+    logs.push('호출 오류: ' + e.message); setStatusBar('err'); showErrorUI();
+    busy = false; byId('btnGo').disabled = false;
   });
 }
 
 function searchGPS() {
   if (busy) return;
-  busy = true;
-  gpsItems = [];
-  logs = [];
-  setStatusBar('wait');
-  showLoadingUI();
-
-  var allData = [];
-  var pageNum = 1;
-
+  busy = true; gpsItems = []; logs = []; setStatusBar('wait'); showLoadingUI();
+  var allData = []; var pageNum = 1;
   function loadNext() {
     if (pageNum > 10) return finishGPS(allData);
     var apiUrl = API_BASE + '/info?' + buildParams(pageNum);
     return proxyFetch(apiUrl).then(function(res) {
-      if (!res) {
-        if (pageNum === 1) {
-          showErrorUI();
-          setStatusBar('err');
-          busy = false;
-          byId('btnGo').disabled = false;
-          return;
-        }
-        return finishGPS(allData);
-      }
+      if (!res) { if (pageNum === 1) { showErrorUI(); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; } return finishGPS(allData); }
       return res.text().then(function(txt) {
         var j;
-        try { j = JSON.parse(txt); } catch(e) {
-          if (pageNum === 1) { showErrorUI('응답 파싱 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
-          return finishGPS(allData);
-        }
-
-        if (j.OpenAPI_ServiceResponse) {
-          var errHdr = j.OpenAPI_ServiceResponse.cmmMsgHeader || {};
-          var errMsg = errHdr.returnAuthMsg || 'API 오류';
-          if (pageNum === 1) { showErrorUI('API 오류: ' + errMsg); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
-          return finishGPS(allData);
-        }
-
+        try { j = JSON.parse(txt); } catch(e) { if (pageNum === 1) { showErrorUI('응답 파싱 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; } return finishGPS(allData); }
+        if (j.OpenAPI_ServiceResponse) { if (pageNum === 1) { var em = (j.OpenAPI_ServiceResponse.cmmMsgHeader||{}).returnAuthMsg||'API 오류'; showErrorUI('API 오류: '+em); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; } return finishGPS(allData); }
         var parsed = parseApiResponse(j);
-        if (!parsed) {
-          if (pageNum === 1) { showErrorUI('응답 구조 인식 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
-          return finishGPS(allData);
-        }
-
+        if (!parsed) { if (pageNum === 1) { showErrorUI('응답 구조 인식 실패'); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; } return finishGPS(allData); }
         allData = allData.concat(parsed.items);
         byId('totB').textContent = allData.length + '건 수집중...';
         if (parsed.items.length < PAGE_SIZE) return finishGPS(allData);
-        pageNum++;
-        return loadNext();
+        pageNum++; return loadNext();
       });
-    }).catch(function() {
-      if (pageNum === 1) { showErrorUI(); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; }
-      return finishGPS(allData);
-    });
+    }).catch(function() { if (pageNum === 1) { showErrorUI(); setStatusBar('err'); busy = false; byId('btnGo').disabled = false; return; } return finishGPS(allData); });
   }
-
   loadNext();
 }
 
@@ -606,76 +628,43 @@ function finishGPS(allData) {
   var maxDist = myRad * 1000;
   var purpose = byId('ppSel').value;
   gpsItems = [];
-
   for (var i = 0; i < allData.length; i++) {
     var it = allData[i];
-    var la = parseFloat(it.WGS84_LAT);
-    var lo = parseFloat(it.WGS84_LOT);
+    var la = parseFloat(it.WGS84_LAT), lo = parseFloat(it.WGS84_LOT);
     if (isNaN(la) || isNaN(lo)) continue;
     var d = havDist(myLat, myLon, la, lo);
     if (d > maxDist) continue;
     if (purpose && (it.INSTL_PRPS_SE_NM || '').indexOf(purpose) < 0) continue;
-    var copy = {};
-    for (var k in it) { if (it.hasOwnProperty(k)) copy[k] = it[k]; }
-    copy._dist = d;
-    gpsItems.push(copy);
+    var copy = {}; for (var k in it) { if (it.hasOwnProperty(k)) copy[k] = it[k]; }
+    copy._dist = d; gpsItems.push(copy);
   }
-
   gpsItems.sort(function(a, b) { return a._dist - b._dist; });
-  total = gpsItems.length;
-  pgMax = Math.max(1, Math.ceil(gpsItems.length / PAGE_SIZE));
-  pg = 1;
-  doPaginate();
-  setStatusBar('ok');
+  total = gpsItems.length; pgMax = Math.max(1, Math.ceil(gpsItems.length / PAGE_SIZE)); pg = 1;
+  doPaginate(); setStatusBar('ok');
   showToast('📍 반경 ' + myRad + 'km 내 ' + gpsItems.length + '건', 'ok');
-  busy = false;
-  byId('btnGo').disabled = false;
+  busy = false; byId('btnGo').disabled = false;
 }
 
 // ===== 응답 파싱 =====
 function parseApiResponse(j) {
-  var body = null;
-  var hdr = null;
-
-  if (j.response) {
-    hdr = j.response.header;
-    body = j.response.body;
-  } else if (j.body || j.items || j.item) {
-    body = j.body || j;
-  } else {
-    return null;
-  }
-
-  if (hdr) {
-    var code = (hdr.resultCode != null) ? String(hdr.resultCode) : '';
-    if (code !== '00' && code !== '0' && code !== '') return null;
-  }
+  var body = null, hdr = null;
+  if (j.response) { hdr = j.response.header; body = j.response.body; }
+  else if (j.body || j.items || j.item) { body = j.body || j; }
+  else return null;
+  if (hdr) { var code = String(hdr.resultCode || ''); if (code !== '00' && code !== '0' && code !== '') return null; }
   if (!body) return null;
-
   var raw = body.items || body.item;
   var arr = [];
-  if (raw) {
-    var inner = raw.item || raw;
-    arr = Array.isArray(inner) ? inner : (inner ? [inner] : []);
-  }
-
-  var cnt = parseInt(body.totalCount || arr.length, 10);
-  return { items: arr, totalCount: cnt };
+  if (raw) { var inner = raw.item || raw; arr = Array.isArray(inner) ? inner : (inner ? [inner] : []); }
+  return { items: arr, totalCount: parseInt(body.totalCount || arr.length, 10) };
 }
 
 function filterResults() {
   var purpose = byId('ppSel').value;
   var addr = byId('addrIn').value.trim();
-  if (purpose) {
-    items = items.filter(function(it) {
-      return (it.INSTL_PRPS_SE_NM || '').indexOf(purpose) >= 0;
-    });
-  }
+  if (purpose) items = items.filter(function(it) { return (it.INSTL_PRPS_SE_NM || '').indexOf(purpose) >= 0; });
   if (addr && items.length) {
-    var filtered = items.filter(function(it) {
-      var combined = (it.LCTN_LOTNO_ADDR || '') + (it.LCTN_ROAD_NM_ADDR || '') + (it.MNG_INST_NM || '');
-      return combined.indexOf(addr) >= 0;
-    });
+    var filtered = items.filter(function(it) { return ((it.LCTN_LOTNO_ADDR||'')+(it.LCTN_ROAD_NM_ADDR||'')+(it.MNG_INST_NM||'')).indexOf(addr) >= 0; });
     if (filtered.length) items = filtered;
   }
 }
@@ -684,34 +673,41 @@ function filterResults() {
 function renderList(data, showDist) {
   if (!data.length) {
     byId('lw').innerHTML = '<div class="empty"><div style="font-size:52px">😕</div><div>검색 결과가 없습니다</div></div>';
-    byId('totB').textContent = '0건';
-    return;
+    byId('totB').textContent = '0건'; return;
   }
   byId('totB').textContent = total.toLocaleString() + '건';
-
   var html = '';
   for (var i = 0; i < data.length; i++) {
     var it = data[i];
-    var addr = it.LCTN_ROAD_NM_ADDR || it.LCTN_LOTNO_ADDR || '주소 없음';
-    var pp = it.INSTL_PRPS_SE_NM || '';
-    var tagClass = 'tag-etc';
-    if (pp.indexOf('어린이') >= 0) tagClass = 'tag-kid';
-    else if (pp.indexOf('교통') >= 0 || pp.indexOf('단속') >= 0) tagClass = 'tag-trf';
-    else if (pp.indexOf('방범') >= 0) tagClass = 'tag-sec';
-
-    html += '<div class="ci" onclick="selectItem(' + i + ')">';
-    html += '<div class="cn">' + escHtml(it.MNG_INST_NM || 'CCTV') + '</div>';
-    html += '<div class="ca">' + escHtml(addr) + '</div>';
-    if (showDist && it._dist != null) {
-      html += '<div class="cdist">📏 ' + fmtDist(it._dist) + '</div>';
+    if (it._isITS) {
+      // ITS CCTV 항목
+      html += '<div class="ci" onclick="selectITSItem(' + i + ')">';
+      html += '<div class="cn">🎥 ' + escHtml(it.cctvname || 'ITS CCTV') + '</div>';
+      html += '<div class="ca">' + escHtml(it.cctvname || '도로 CCTV') + '</div>';
+      if (it._dist != null) html += '<div class="cdist">📏 ' + fmtDist(it._dist) + '</div>';
+      html += '<span class="ctag tag-its">🎥 실시간 영상</span>';
+      html += '</div>';
+    } else {
+      // 행정안전부 CCTV 항목
+      var addr = it.LCTN_ROAD_NM_ADDR || it.LCTN_LOTNO_ADDR || '주소 없음';
+      var pp = it.INSTL_PRPS_SE_NM || '';
+      var tagClass = 'tag-etc';
+      if (pp.indexOf('어린이') >= 0) tagClass = 'tag-kid';
+      else if (pp.indexOf('교통') >= 0 || pp.indexOf('단속') >= 0) tagClass = 'tag-trf';
+      else if (pp.indexOf('방범') >= 0) tagClass = 'tag-sec';
+      html += '<div class="ci" onclick="selectItem(' + i + ')">';
+      html += '<div class="cn">' + escHtml(it.MNG_INST_NM || 'CCTV') + '</div>';
+      html += '<div class="ca">' + escHtml(addr) + '</div>';
+      if (showDist && it._dist != null) html += '<div class="cdist">📏 ' + fmtDist(it._dist) + '</div>';
+      if (pp) html += '<span class="ctag ' + tagClass + '">' + escHtml(pp) + '</span>';
+      html += '</div>';
     }
-    if (pp) html += '<span class="ctag ' + tagClass + '">' + escHtml(pp) + '</span>';
-    html += '</div>';
   }
   byId('lw').innerHTML = html;
 }
 
-function selectItem(idx) {
+// ===== ITS CCTV 선택 → 영상 재생 =====
+function selectITSItem(idx) {
   var it = items[idx];
   if (!it) return;
 
@@ -719,130 +715,162 @@ function selectItem(idx) {
   for (var i = 0; i < els.length; i++) els[i].className = 'ci';
   if (els[idx]) els[idx].className = 'ci ci-act';
 
-  var addr = it.LCTN_ROAD_NM_ADDR || it.LCTN_LOTNO_ADDR || '주소 없음';
-  var pp = it.INSTL_PRPS_SE_NM || '설치목적 미상';
-  var lat = it.WGS84_LAT;
-  var lon = it.WGS84_LOT;
+  currentVideoItem = it;
+  playITSVideo(it);
+  showTab('video');
+}
+
+function playITSVideo(it) {
+  var cctvUrl = it.cctvurl || '';
+  var cctvName = it.cctvname || 'ITS CCTV';
   var distStr = (it._dist != null) ? fmtDist(it._dist) : '';
 
   var h = '<div class="detail">';
-  h += '<div class="dh">';
-  h += '<div class="dh-ic">📷</div>';
-  h += '<div class="dh-pp">' + escHtml(pp) + '</div>';
-  h += '<div class="dh-org">' + escHtml(safeStr(it.MNG_INST_NM)) + '</div>';
-  h += '<div class="dh-ad">' + escHtml(addr) + '</div>';
 
-  if (lat && lon) {
-    h += '<div class="dh-co">📍 ' + lat + ', ' + lon + '</div>';
+  // 영상 플레이어
+  h += '<div class="video-section">';
+  h += '<div class="video-header">';
+  h += '<div class="video-title">' + escHtml(cctvName) + '</div>';
+  h += '<div class="video-live"><span class="video-live-dot"></span>LIVE</div>';
+  h += '</div>';
+  h += '<div class="video-container">';
+  if (cctvUrl) {
+    h += '<video id="hlsVideo" autoplay muted playsinline></video>';
+  } else {
+    h += '<div class="video-placeholder"><div class="vp-icon">📡</div><div>영상 URL 없음</div></div>';
   }
-  if (distStr) {
-    h += '<div class="dh-di">📏 내 위치에서 ' + distStr + '</div>';
-  }
-  if (lat && lon) {
-    h += '<div class="maplinks">';
-    h += '<a href="https://map.kakao.com/link/map/' + encodeURIComponent(addr) + ',' + lat + ',' + lon + '" target="_blank" style="background:#FAE100;color:#3C1E1E">🗺 카카오</a>';
-    h += '<a href="https://map.naver.com/p/search/' + encodeURIComponent(addr) + '" target="_blank" style="background:#03C75A;color:#fff">🗾 네이버</a>';
-    h += '<a href="https://www.google.com/maps?q=' + lat + ',' + lon + '" target="_blank" style="background:#4285F4;color:#fff">🌐 구글</a>';
-    h += '</div>';
-  }
-  h += '<div class="dh-note">※ 설치현황 정보 (실시간 영상 미포함)</div>';
+  h += '</div>';
+  h += '<div class="video-controls">';
+  h += '<button class="vc-btn vc-btn-live" onclick="reloadVideo()">🔄 새로고침</button>';
+  h += '<span id="vcStatus" class="vc-status">연결중...</span>';
+  h += '<button class="vc-btn" onclick="toggleMute()">🔊 음소거</button>';
+  h += '</div>';
   h += '</div>';
 
-  var fields = [
-    ['관리번호', it.MNG_NO],
-    ['관리기관', it.MNG_INST_NM],
-    ['전화번호', it.MNG_INST_TELNO],
-    ['설치목적', it.INSTL_PRPS_SE_NM],
-    ['설치년월', it.INSTL_YM],
-    ['카메라 수', it.CAM_CNTOM ? it.CAM_CNTOM + '대' : null],
-    ['화소수', it.CAM_PIXEL_CNT ? it.CAM_PIXEL_CNT + '만화소' : null],
-    ['보관일수', it.KPNG_DAY_CNT],
-    ['촬영각도', it.SHT_ANGLE_INFO],
-    ['지번주소', it.LCTN_LOTNO_ADDR],
-    ['도로명주소', it.LCTN_ROAD_NM_ADDR],
-    ['자치단체코드', it.OPN_ATMY_GRP_CD],
-    ['데이터기준일', it.DAT_CRTR_YMD],
-    ['최종수정일', it.LAST_MDCN_PNT],
-    ['위도', it.WGS84_LAT],
-    ['경도', it.WGS84_LOT]
-  ];
-
+  // CCTV 정보
   h += '<div class="igrid">';
-  for (var f = 0; f < fields.length; f++) {
-    h += '<div>';
-    h += '<div class="ifield-l">' + fields[f][0] + '</div>';
-    h += '<div class="ifield-v">' + escHtml(safeStr(fields[f][1])) + '</div>';
+  h += '<div><div class="ifield-l">CCTV명</div><div class="ifield-v">' + escHtml(cctvName) + '</div></div>';
+  h += '<div><div class="ifield-l">거리</div><div class="ifield-v">' + (distStr || '-') + '</div></div>';
+  h += '<div><div class="ifield-l">위도</div><div class="ifield-v">' + safeStr(it.coordy) + '</div></div>';
+  h += '<div><div class="ifield-l">경도</div><div class="ifield-v">' + safeStr(it.coordx) + '</div></div>';
+  h += '</div>';
+
+  // 지도 링크
+  if (it.coordy && it.coordx) {
+    h += '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">';
+    h += '<a href="https://map.kakao.com/link/map/' + encodeURIComponent(cctvName) + ',' + it.coordy + ',' + it.coordx + '" target="_blank" style="padding:16px 22px;border-radius:10px;font-size:18px;font-weight:700;text-decoration:none;background:#FAE100;color:#3C1E1E">🗺 카카오</a>';
+    h += '<a href="https://www.google.com/maps?q=' + it.coordy + ',' + it.coordx + '" target="_blank" style="padding:16px 22px;border-radius:10px;font-size:18px;font-weight:700;text-decoration:none;background:#4285F4;color:#fff">🌐 구글</a>';
     h += '</div>';
   }
-  h += '</div></div>';
 
-  byId('dw').innerHTML = h;
-  showTab('detail');
-}
-
-function showLoadingUI() {
-  byId('lw').innerHTML = '<div class="ld"><div class="spinner"></div><span>API 호출중...</span><div style="font-size:16px;color:#546e7a;margin-top:4px">프록시 경유 데이터 조회중</div></div>';
-}
-
-function showErrorUI(msg) {
-  var logHtml = '';
-  if (logs.length) {
-    logHtml = '<div class="elog">';
-    for (var i = 0; i < logs.length; i++) {
-      logHtml += '• ' + escHtml(logs[i]) + '<br>';
+  // 주변 ITS CCTV 목록
+  if (itsItems.length > 1) {
+    h += '<div class="nearby-cctv">';
+    h += '<div class="nearby-title">📡 주변 ITS CCTV</div>';
+    var count = 0;
+    for (var i = 0; i < itsItems.length && count < 5; i++) {
+      var nb = itsItems[i];
+      if (nb === it) continue;
+      h += '<div class="nearby-item" onclick="playNearbyITS(' + i + ')">';
+      h += '<div class="ni-icon">🎥</div>';
+      h += '<div class="ni-info"><div class="ni-name">' + escHtml(nb.cctvname || 'CCTV') + '</div>';
+      h += '<div class="ni-dist">📏 ' + fmtDist(nb._dist) + '</div></div>';
+      h += '<div class="ni-play">▶ 재생</div>';
+      h += '</div>';
+      count++;
     }
-    logHtml += '</div>';
+    h += '</div>';
   }
 
-  var h = '<div class="empty">';
-  h += '<div style="font-size:56px">❌</div>';
-  h += '<div style="font-size:20px;font-weight:700;color:#e53935">' + (msg ? escHtml(msg) : 'API 호출 실패') + '</div>';
-  h += '<div class="ebox">';
-  h += '<div class="etitle">해결 방법</div>';
-  h += '<div class="estep">① 인증키가 올바른지 확인</div>';
-  h += '<div class="estep">② 공공데이터포털에서 API 활용 승인 확인</div>';
-  h += '<div class="estep">③ 잠시 후 다시 시도</div>';
-  h += logHtml;
-  h += '</div></div>';
+  h += '</div>';
+  byId('vw').innerHTML = h;
 
-  byId('lw').innerHTML = h;
-  byId('totB').textContent = '오류';
+  // HLS 스트림 재생
+  if (cctvUrl) {
+    setTimeout(function() { initHlsPlayer(cctvUrl); }, 100);
+  }
 }
 
-function setStatusBar(s) {
-  var el = byId('stT');
-  if (s === 'wait') el.innerHTML = '<span class="dot dot-wait"></span>호출중...';
-  else if (s === 'ok') el.innerHTML = '<span class="dot dot-ok"></span>연결 성공 · ' + total.toLocaleString() + '건';
-  else if (s === 'err') el.innerHTML = '<span class="dot dot-err"></span>연결 실패';
-  else el.innerHTML = '<span class="dot dot-wait"></span>대기중';
+function playNearbyITS(idx) {
+  var it = itsItems[idx];
+  if (!it) return;
+  currentVideoItem = it;
+  playITSVideo(it);
 }
 
-function doReset() {
-  byId('ppSel').value = '';
-  byId('addrIn').value = '';
-  byId('gpsChk').checked = false;
-  gpsOn = false;
-  byId('radSel').disabled = true;
-  byId('gpsT').className = 'gt';
-  byId('gpsSt').textContent = 'OFF';
-  byId('gpsSt').className = 'gs';
-  byId('gpsBox').className = 'gb';
-  pg = 1; items = []; gpsItems = []; total = 0; pgMax = 0; busy = false; logs = [];
-  byId('lw').innerHTML = '<div class="empty"><div style="font-size:60px">🔍</div><div>주소를 입력하거나<br>📍 내 위치를 켜고 검색하세요</div></div>';
-  byId('totB').textContent = '0건';
-  byId('pgI').textContent = '- / -';
-  byId('btnP').disabled = true;
-  byId('btnN').disabled = true;
-  byId('btnGo').disabled = false;
-  byId('dw').innerHTML = '<div class="empty"><div style="font-size:60px">📷</div><div>목록에서 CCTV를 선택하세요</div></div>';
-  byId('stT').innerHTML = '<span class="dot dot-wait"></span>대기중';
-  byId('epT').textContent = '';
-  showTab('list');
+function initHlsPlayer(url) {
+  var video = byId('hlsVideo');
+  if (!video) return;
+
+  // 기존 HLS 인스턴스 정리
+  if (currentHls) { currentHls.destroy(); currentHls = null; }
+
+  var statusEl = byId('vcStatus');
+
+  if (Hls.isSupported()) {
+    var hls = new Hls({
+      enableWorker: true,
+      lowLatencyMode: true,
+      maxBufferLength: 10,
+      maxMaxBufferLength: 30
+    });
+    currentHls = hls;
+
+    hls.loadSource(url);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play().catch(function() {});
+      if (statusEl) statusEl.textContent = '🟢 실시간 스트리밍 중';
+    });
+
+    hls.on(Hls.Events.ERROR, function(event, data) {
+      if (statusEl) statusEl.textContent = '⚠️ ' + (data.details || '스트림 오류');
+      if (data.fatal) {
+        switch(data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            if (statusEl) statusEl.textContent = '🔴 네트워크 오류 - 재시도중...';
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            if (statusEl) statusEl.textContent = '🔴 미디어 오류 - 복구중...';
+            hls.recoverMediaError();
+            break;
+          default:
+            if (statusEl) statusEl.textContent = '🔴 재생 불가';
+            hls.destroy();
+            break;
+        }
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari 네이티브 HLS
+    video.src = url;
+    video.addEventListener('loadedmetadata', function() {
+      video.play().catch(function() {});
+      if (statusEl) statusEl.textContent = '🟢 실시간 스트리밍 중';
+    });
+  } else {
+    if (statusEl) statusEl.textContent = '🔴 HLS 미지원 브라우저';
+  }
 }
 
-// ===== 시작 =====
-document.addEventListener('DOMContentLoaded', initApp);
-</script>
-</body>
-</html>
+function reloadVideo() {
+  if (currentVideoItem && currentVideoItem.cctvurl) {
+    byId('vcStatus').textContent = '🔄 재연결중...';
+    initHlsPlayer(currentVideoItem.cctvurl);
+  }
+}
 
+function toggleMute() {
+  var video = byId('hlsVideo');
+  if (video) video.muted = !video.muted;
+}
+
+// ===== 행정안전부 CCTV 상세 =====
+function selectItem(idx) {
+  var it = items[idx];
+  if (!it) return;
+
+  var els = document.querySelectorAll('.ci');
+  for (var i = 0
